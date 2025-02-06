@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthMethod {
+  GOOGLE
+  MANUAL
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  DECLINED
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id String @id @default(uuid())
+  username String
+  email String @unique
+  //credentials Credentials?
+  password String
+  city String 
+  description String? @db.Text
+  avgRating Float @default(0.0)
+  photoUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authMethod AuthMethod?
+  role Role?
+
+  reviewsGiven Review[] @relation("Reviewer")
+  reviewsReceived Review[] @relation("ReviewedUser")
+  booksForExchange BookForExchange[]
+  sentRequests ExchangeRequest[] @relation("SenderExchangeRequests")
+  receivedRequests ExchangeRequest[] @relation("ReceiverExchangeRequests")
+}
+
+// model Credentials {
+//   id String @id @default(uuid())
+//   password String
+//   userId String @unique
+
+//   user User @relation(fields: [userId], references: [id])
+// }
+
+model Review {
+  id String @id @default(uuid())
+  reviewerId String 
+  reviewedUserId String 
+  rating Float
+  comment String?
+  createdAt DateTime @default(now())
+
+  reviewer User @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewedUser User @relation("ReviewedUser", fields: [reviewedUserId], references: [id])
+}
+
+model BookForExchange {
+  id String @id @default(uuid())
+  title String @db.VarChar(255)
+  author String @db.VarChar(100)
+  language String
+  condition Float
+  forFree Boolean 
+  description String @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  inExchange Boolean
+  userId String 
+
+  genre BookGenre[]
+  photos BookPhoto[]
+  sentRequests ExchangeRequest[] @relation("SenderBookRelation")
+  receivedRequests ExchangeRequest[] @relation("ReceiverBookRelation")
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Genre {
+  id String @id @default(uuid())
+  name String @unique @db.VarChar(50)
+
+  books BookGenre[]
+}
+
+model BookGenre {
+  bookId String
+  genreId String
+
+  book BookForExchange @relation(fields: [bookId], references: [id])
+  genre Genre @relation(fields: [genreId], references: [id])
+
+  @@unique([bookId, genreId])
+}
+
+model BookPhoto {
+  id String @id @default(uuid())
+  photoUrl String
+  bookId String 
+
+  book BookForExchange @relation(fields: [bookId], references: [id])
+}
+
+model ExchangeRequest {
+  id String @id @default(uuid())
+  senderId String 
+  receiverId String 
+  senderBookId String 
+  receiverBookId String 
+  status Status
+  createdAt DateTime @default(now())
+
+  sender User @relation("SenderExchangeRequests", fields: [senderId], references: [id])
+  receiver User @relation("ReceiverExchangeRequests", fields: [receiverId], references: [id])
+  senderBook BookForExchange @relation("SenderBookRelation", fields: [senderBookId], references: [id])
+  receiverBook BookForExchange @relation("ReceiverBookRelation", fields: [receiverBookId], references: [id])
+}
