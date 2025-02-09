@@ -33,7 +33,7 @@ export class AuthController {
   }
 
   @Delete()
-  @UseGuards(JwtGuard)
+  //@UseGuards(JwtGuard)
   logout(@Res() res: Response) {
     return this.authService.logout(res);
   }
