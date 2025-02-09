@@ -5,46 +5,36 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { LoginDto } from './dto/login.dto';
 import { Response, Request } from 'express';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
 
-  constructor(private readonly databaseService: DatabaseService) {}
-
-  private generateAccessToken(userId: string): string {
-    return jwt.sign({ id: userId}, process.env.JWT_ACCESS, {
-      expiresIn: '1h',
-    })
-  }
+  constructor(private readonly databaseService: DatabaseService, private readonly jwtService: JwtService) {}
 
   private generateRefreshToken(userId: string): string {
-    return jwt.sign({ id: userId}, process.env.JWT_REFRESH);
-  }
+    return jwt.sign({ id: userId }, process.env.JWT_REFRESH, { expiresIn: '7d' });
+  } 
 
-  async register(createUserDto: Prisma.UserCreateInput, @Res() res: Response) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(createUserDto.password, salt); 
+  // === Local Strategy Guard Login
+  // async login({email, password}: LoginDto) {
 
-    const user = await this.databaseService.user.create({
-      data: {
-        ...createUserDto,
-        password: hashedPassword,
-        authMethod: 'MANUAL',
-        role: "USER"
-      }
-    });
+  //   const user = await this.databaseService.user.findUnique({
+  //     where: {
+  //       email,
+  //     }
+  //   })
 
-    const accessToken = this.generateAccessToken(user.id);
-    const refreshToken = this.generateRefreshToken(user.id);
+  //   if (!user) return null;
 
-    res.cookie('jwt-refresh', refreshToken, {
-      httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      //maxAge: 1.5 * 60 * 1000
-    })
-
-    res.send(accessToken);
-  }
+  //   if (await bcrypt.compare(password, user.password)){
+  //     const accessToken = this.jwtService.sign({ id: user.id });
+  //     const refreshToken = this.generateRefreshToken(user.id);
+  //     return { accessToken, refreshToken };
+  //   }
+      
+  //   return null;
+  // }
 
   async login(loginDto: LoginDto, @Res() res: Response) {
     const email = loginDto.email;
@@ -61,7 +51,7 @@ export class AuthService {
     if (!(await bcrypt.compare(password, user.password)))
       return res.status(400).send({ message: "Bad credentials" });
 
-    const accessToken = this.generateAccessToken(user.id);
+    const accessToken = this.jwtService.sign({ id: user.id });
     const refreshToken = this.generateRefreshToken(user.id);
 
     res.cookie('jwt-refresh', refreshToken, {
@@ -69,18 +59,42 @@ export class AuthService {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
-    res.send(accessToken);
+    res.status(201).send(accessToken);
+  }
+
+  async register(createUserDto: Prisma.UserCreateInput, @Res() res: Response) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt); 
+
+    const user = await this.databaseService.user.create({
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+        authMethod: 'MANUAL',
+        role: "USER"
+      }
+    });
+
+    const accessToken = this.jwtService.sign({ id: user.id });
+    const refreshToken = this.generateRefreshToken(user.id);
+
+    res.cookie('jwt-refresh', refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+
+    res.status(201).send(accessToken);
   }
 
   refresh(@Req() req: Request, @Res() res: Response) {
     try {
       const refreshToken = req.cookies['jwt-refresh'];
   
-      const claims = jwt.verify(refreshToken, process.env.JWT_REFRESH);
+      const claims = jwt.verify(refreshToken, process.env.JWT_REFRESH)  as jwt.JwtPayload;
   
       if (!claims) res.status(401).send({ message: "unaunthenticated" });
   
-      const accessToken = this.generateAccessToken(claims.id);
+      const accessToken = this.jwtService.sign({ id: claims.id });
   
       res.send(accessToken);
     } catch (err) {
