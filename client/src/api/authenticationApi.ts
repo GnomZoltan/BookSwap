@@ -25,7 +25,7 @@ export function registerUser(registerDto: RegisterDto) {
   
 export function refreshToken() {
     return axiosInstance.get(
-        AUTH_CONTROLLER + "/refresh", 
+        AUTH_CONTROLLER, 
         {
             withCredentials: true,
         }
@@ -34,7 +34,7 @@ export function refreshToken() {
 
 export function logout() {
     return axiosInstance.delete(
-        AUTH_CONTROLLER + "/logout", 
+        AUTH_CONTROLLER, 
         {
             withCredentials: true,
         }  
