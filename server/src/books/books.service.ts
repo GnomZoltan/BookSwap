@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
+import { CreateBookDto } from './dto/create-book.dto';
 
 @Injectable()
 export class BooksService {
 
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(createBookDto: Prisma.BookForExchangeCreateInput) {
+  async create(createBookDto: CreateBookDto) {
     return this.databaseService.bookForExchange.create({
       data: createBookDto
     });
