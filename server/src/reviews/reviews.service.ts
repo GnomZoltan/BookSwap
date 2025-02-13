@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { Prisma } from '@prisma/client';
+import { CreateReviewDto } from './dto/create-review.dto';
 
 @Injectable()
 export class ReviewsService {
 
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(createReviewDto: Prisma.ReviewCreateInput) {
+  async create(createReviewDto: CreateReviewDto) {
     return this.databaseService.review.create({
       data: createReviewDto,
     });
