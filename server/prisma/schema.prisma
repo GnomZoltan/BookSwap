@@ -24,6 +24,11 @@ enum Status {
   DECLINED
 }
 
+enum BookStatus {
+  AVAILABLE
+  SWAPPED
+}
+
 enum Role {
   USER
   ADMIN
@@ -66,8 +71,8 @@ model Review {
   comment String?
   createdAt DateTime @default(now())
 
-  reviewer User @relation("Reviewer", fields: [reviewerId], references: [id])
-  reviewedUser User @relation("ReviewedUser", fields: [reviewedUserId], references: [id])
+  reviewer User @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewedUser User @relation("ReviewedUser", fields: [reviewedUserId], references: [id], onDelete: Cascade)
 }
 
 model BookForExchange {
@@ -82,12 +87,13 @@ model BookForExchange {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId String 
+  status BookStatus @default(AVAILABLE)
 
   genre BookGenre[]
   photos BookPhoto[]
   sentRequests ExchangeRequest[] @relation("SenderBookRelation")
   receivedRequests ExchangeRequest[] @relation("ReceiverBookRelation")
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Genre {
@@ -101,7 +107,7 @@ model BookGenre {
   bookId String
   genreId String
 
-  book BookForExchange @relation(fields: [bookId], references: [id])
+  book BookForExchange @relation(fields: [bookId], references: [id], onDelete: Cascade)
   genre Genre @relation(fields: [genreId], references: [id])
 
   @@unique([bookId, genreId])
@@ -112,7 +118,7 @@ model BookPhoto {
   photoUrl String
   bookId String 
 
-  book BookForExchange @relation(fields: [bookId], references: [id])
+  book BookForExchange @relation(fields: [bookId], references: [id], onDelete: Cascade)
 }
 
 model ExchangeRequest {

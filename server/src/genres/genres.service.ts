@@ -17,19 +17,10 @@ export class GenresService {
     return this.databaseService.genre.findMany();
   }
 
-  async findOne(id: string) {
+  async findOne(name: string) {
     return this.databaseService.genre.findUnique({
       where: {
-        id,
-      }
-    });
-  }
-
-  async update(id: string, updateGenreDto: Prisma.GenreUpdateInput) {
-    return this.databaseService.genre.update({
-      data: updateGenreDto,
-      where: {
-        id,
+        name,
       }
     });
   }

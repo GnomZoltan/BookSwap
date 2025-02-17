@@ -9,9 +9,10 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { ExchangeRequestsModule } from './exchange-requests/exchange-requests.module';
 import { GenresModule } from './genres/genres.module';
 import { BookPhotosModule } from './book-photos/book-photos.module';
+import { BookGenreModule } from './book-genre/book-genre.module';
 
 @Module({
-  imports: [DatabaseModule, UsersModule, AuthModule, BooksModule, ReviewsModule, ExchangeRequestsModule, GenresModule, BookPhotosModule],
+  imports: [DatabaseModule, UsersModule, AuthModule, BooksModule, ReviewsModule, ExchangeRequestsModule, GenresModule, BookPhotosModule, BookGenreModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -1,17 +1,18 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Req, UseGuards, Patch } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Prisma } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CreateBookDto } from './dto/create-book.dto';
 
+@UseGuards(JwtGuard)
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
-  @UseGuards(JwtGuard)
-  create(@Body() createBookDto: CreateBookDto, @Req() req: any) {
+  async create(@Body() createBookDto: CreateBookDto, @Req() req: any) {
+
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
@@ -25,7 +26,8 @@ export class BooksController {
     }
     
     createBookDto.userId = decoded.id;
-    return this.booksService.create(createBookDto);
+
+    return this.booksService.create(createBookDto);;
   }
 
   @Get()
@@ -38,12 +40,14 @@ export class BooksController {
     return this.booksService.findOne(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
+  // only yourself, other Admin
   update(@Param('id') id: string, @Body() updateBookDto: Prisma.BookForExchangeUpdateInput) {
     return this.booksService.update(id, updateBookDto);
   }
 
   @Delete(':id')
+  // only yourself, other Admin
   remove(@Param('id') id: string) {
     return this.booksService.remove(id);
   }

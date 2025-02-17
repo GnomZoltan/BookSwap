@@ -5,12 +5,12 @@ import * as jwt from 'jsonwebtoken';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 
+@UseGuards(JwtGuard)
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
-  @UseGuards(JwtGuard)
   create(@Body() createReviewDto: CreateReviewDto, @Req() req: any) {
     const token = req.headers.authorization?.split(' ')[1];
     
@@ -33,16 +33,28 @@ export class ReviewsController {
     return this.reviewsService.findAll();
   }
 
+  @Get('reviewer/:id')
+  findByReviewer(@Param('id') reviewerId: string) {
+    return this.reviewsService.findByReviewerId(reviewerId);
+  }
+
+  @Get('reviewed/:id')
+  findByReviewed(@Param('id') reviewedId: string) {
+    return this.reviewsService.findByReviewedId(reviewedId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.reviewsService.findOne(id);
   }
 
+  // yourself
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateReviewDto: Prisma.ReviewUpdateInput) {
     return this.reviewsService.update(id, updateReviewDto);
   }
 
+  // only your reviews, other Admin
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.reviewsService.remove(id);

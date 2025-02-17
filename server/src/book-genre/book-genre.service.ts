@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class BookPhotosService {
+export class BookGenreService {
 
   constructor(private readonly databaseService: DatabaseService) {}
 
   async findAll() {
-    return this.databaseService.bookPhoto.findMany();
+    return this.databaseService.bookGenre.findMany();
   }
 }
