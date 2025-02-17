@@ -7,12 +7,6 @@ export class UsersService {
 
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(createUserDto: Prisma.UserCreateInput) {
-    return this.databaseService.user.create({
-      data: createUserDto
-    });
-  }
-
   async findAll() {
     return this.databaseService.user.findMany();
   }

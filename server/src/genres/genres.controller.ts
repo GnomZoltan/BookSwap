@@ -1,12 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
 import { GenresService } from './genres.service';
 import { Prisma } from '@prisma/client';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 
+@UseGuards(JwtGuard)
 @Controller('genres')
 export class GenresController {
   constructor(private readonly genresService: GenresService) {}
 
   @Post()
+  // Admin
   create(@Body() createGenreDto: Prisma.GenreCreateInput) {
     return this.genresService.create(createGenreDto);
   }
@@ -16,17 +19,13 @@ export class GenresController {
     return this.genresService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.genresService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGenreDto: Prisma.GenreUpdateInput) {
-    return this.genresService.update(id, updateGenreDto);
+  @Get(':name')
+  findOne(@Param('name') name: string) {
+    return this.genresService.findOne(name);
   }
 
   @Delete(':id')
+  // Admin
   remove(@Param('id') id: string) {
     return this.genresService.remove(id);
   }

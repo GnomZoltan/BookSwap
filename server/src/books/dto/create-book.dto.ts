@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsBoolean } from 'class-validator';
+import { IsString, IsNumber, IsBoolean, IsArray, ArrayMinSize } from 'class-validator';
 
 export class CreateBookDto {
     @IsString()
@@ -24,4 +24,14 @@ export class CreateBookDto {
 
     @IsString()
     userId: string; 
+
+    @IsArray()
+    @ArrayMinSize(1)
+    @IsString({ each: true })
+    genreNames: string[]
+
+    @IsArray()
+    @ArrayMinSize(1)
+    @IsString({ each: true })
+    bookPhotos: string[]
 }

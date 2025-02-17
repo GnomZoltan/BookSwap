@@ -26,6 +26,22 @@ export class ReviewsService {
     });
   }
 
+  async findByReviewerId(reviewerId: string) {
+    return this.databaseService.review.findMany({
+      where: {
+        reviewerId,
+      }
+    });
+  }
+
+  async findByReviewedId(reviewedUserId: string) {
+    return this.databaseService.review.findMany({
+      where: {
+        reviewedUserId,
+      }
+    });
+  }
+
   async update(id: string, updateReviewDto: Prisma.ReviewUpdateInput) {
     return this.databaseService.review.update({
       data: updateReviewDto,
