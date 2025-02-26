@@ -10,9 +10,10 @@ import { ExchangeRequestsModule } from './exchange-requests/exchange-requests.mo
 import { GenresModule } from './genres/genres.module';
 import { BookPhotosModule } from './book-photos/book-photos.module';
 import { BookGenreModule } from './book-genre/book-genre.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
-  imports: [DatabaseModule, UsersModule, AuthModule, BooksModule, ReviewsModule, ExchangeRequestsModule, GenresModule, BookPhotosModule, BookGenreModule],
+  imports: [DatabaseModule, UsersModule, AuthModule, BooksModule, ReviewsModule, ExchangeRequestsModule, GenresModule, BookPhotosModule, BookGenreModule, WishlistModule],
   controllers: [AppController],
   providers: [AppService],
 })

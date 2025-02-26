@@ -55,6 +55,16 @@ export class ExchangeRequestsController {
     return { message: 'Both books marked as SWAPPED successfully' };
   }
 
+  @Get('sent/:id')
+  findBySender(@Param('id') id: string) {
+    return this.exchangeRequestsService.getSent(id);
+  }
+
+  @Get('received/:id')
+  findByReceiver(@Param('id') id: string) {
+    return this.exchangeRequestsService.getReceived(id);
+  }
+
   @Get()
   // only yourself, other Admin
   findAll() {

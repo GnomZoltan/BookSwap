@@ -30,18 +30,44 @@ export class ReviewsService {
     return this.databaseService.review.findMany({
       where: {
         reviewerId,
-      }
-    });
+      },
+      include: {
+        reviewedUser: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    }).then(reviews =>
+      reviews.map(review => ({
+        ...review,
+        reviewedUserId: review.reviewedUser.username, // Replace reviewedUserId with username
+        reviewedUser: undefined, // Remove the original nested object
+      }))
+    );
   }
-
+  
   async findByReviewedId(reviewedUserId: string) {
     return this.databaseService.review.findMany({
       where: {
         reviewedUserId,
-      }
-    });
+      },
+      include: {
+        reviewer: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    }).then(reviews =>
+      reviews.map(review => ({
+        ...review,
+        reviewerId: review.reviewer.username, // Replace reviewerId with username
+        reviewer: undefined, // Remove the original nested object
+      }))
+    );
   }
-
+  
   async update(id: string, updateReviewDto: Prisma.ReviewUpdateInput) {
     return this.databaseService.review.update({
       data: updateReviewDto,

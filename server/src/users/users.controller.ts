@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, Put, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Prisma } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import * as jwt from 'jsonwebtoken';
 
 @UseGuards(JwtGuard)
 @Controller('users')
@@ -13,12 +14,40 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  @Get('myself')
+  async findMe(@Req() req: any) {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      throw new Error('Authorization token is missing');
+    }
+
+    const decoded = jwt.decode(token) as { id: string };
+
+    if (!decoded || !decoded.id) {
+      throw new Error('Invalid token');
+    }
+
+    const foundUser = await this.usersService.findOne(decoded.id);
+    const { password, ...userWithoutPassword } = foundUser;
+    return userWithoutPassword;
   }
 
-  @Put(':id')
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const foundUser = await this.usersService.findOne(id);
+    const { password, ...userWithoutPassword } = foundUser;
+    return userWithoutPassword;
+  }
+
+  @Get('owner/:id')
+  async findBookOwner(@Param('id') id: string) {
+    const foundUser = await this.usersService.findOne(id);
+    const { email, createdAt, updatedAt, authMethod, role, password, ...clearUser } = foundUser;
+    return clearUser;
+  }
+
+  @Patch(':id')
   // Update only himself
   update(@Param('id') id: string, @Body() updateUserDto: Prisma.UserUpdateInput) {
     return this.usersService.update(id, updateUserDto);
