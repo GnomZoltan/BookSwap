@@ -1,10 +1,12 @@
 import React, { FormEvent } from "react";
-import "../home/Home.css";
+import "../welcome/Welcome.css";
 import { useAuth } from "../../content/AuthContext";
 import { logout } from "../../api/authenticationApi";
+import { useNavigate } from 'react-router-dom';
 
 const LogoutButton: React.FC = () => {
   const { setAccessToken } = useAuth();
+  const navigate = useNavigate();
 
   const handleClick = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
@@ -15,6 +17,8 @@ const LogoutButton: React.FC = () => {
     } catch (err) {
       console.error("Failed to logout");
     }
+
+    navigate("/")
   };
 
   return (

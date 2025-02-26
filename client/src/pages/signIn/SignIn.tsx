@@ -23,7 +23,7 @@ const SignIn: React.FC = () => {
 
       setAccessToken(accessToken);
 
-      navigate("/");
+      navigate("/home");
     } catch (err) {
       setError("Failed to sign in. Please check your credentials.");
     }
