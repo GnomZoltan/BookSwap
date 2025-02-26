@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "../home/Home.css";
+import "../welcome/Welcome.css";
 
 const LoginRegisterButton: React.FC = () => {
   const navigate = useNavigate();
