@@ -30,6 +30,11 @@ export class BooksController {
     return this.booksService.create(createBookDto);;
   }
 
+  @Get('owner/:id')
+  findByOwnerId(@Param('id') id: string) {
+    return this.booksService.findByOwnerId(id);
+  }
+
   @Get()
   findAll() {
     return this.booksService.findAll();

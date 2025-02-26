@@ -53,6 +53,7 @@ model User {
   booksForExchange BookForExchange[]
   sentRequests ExchangeRequest[] @relation("SenderExchangeRequests")
   receivedRequests ExchangeRequest[] @relation("ReceiverExchangeRequests")
+  savedBooks Wishlist[]
 }
 
 // model Credentials {
@@ -75,6 +76,18 @@ model Review {
   reviewedUser User @relation("ReviewedUser", fields: [reviewedUserId], references: [id], onDelete: Cascade)
 }
 
+model Wishlist {
+  id String @id @default(uuid())
+  userId String
+  bookId String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book BookForExchange @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+}
+
 model BookForExchange {
   id String @id @default(uuid())
   title String @db.VarChar(255)
@@ -94,6 +107,7 @@ model BookForExchange {
   sentRequests ExchangeRequest[] @relation("SenderBookRelation")
   receivedRequests ExchangeRequest[] @relation("ReceiverBookRelation")
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  savedBy Wishlist[]
 }
 
 model Genre {
