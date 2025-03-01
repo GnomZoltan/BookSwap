@@ -29,3 +29,27 @@ export type Book = {
         }
     ];
 }
+
+export type AddBookDto = {
+    title: string;
+    author: string;
+    language: string;
+    city: string;
+    condition: number;
+    forFree: boolean;
+    description: string;
+    genreNames: string[];
+    bookPhotos: string[];
+}
+
+export type UpdateBookDto = {
+    title?: string;
+    author?: string;
+    language?: string;
+    city?: string;
+    condition?: number;
+    forFree?: boolean;
+    description?: string;
+    genreNames?: string[];
+    bookPhotos?: string[];
+}

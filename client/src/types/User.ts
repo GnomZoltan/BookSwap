@@ -10,3 +10,10 @@ export type User = {
     authMethod: string;
     role: string;
 }
+
+export type UpdateUserDto = {
+    username?: string;
+    email?: string;
+    description?: string;
+    photoUrl?: string;
+}

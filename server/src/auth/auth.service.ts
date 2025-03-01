@@ -51,7 +51,7 @@ export class AuthService {
     if (!(await bcrypt.compare(password, user.password)))
       return res.status(400).send({ message: "Bad credentials" });
 
-    const accessToken = this.jwtService.sign({ id: user.id });
+    const accessToken = this.jwtService.sign({ id: user.id, role: user.role });
     const refreshToken = this.generateRefreshToken(user.id);
 
     res.cookie('jwt-refresh', refreshToken, {
@@ -75,7 +75,7 @@ export class AuthService {
       }
     });
 
-    const accessToken = this.jwtService.sign({ id: user.id });
+    const accessToken = this.jwtService.sign({ id: user.id, role: user.role });
     const refreshToken = this.generateRefreshToken(user.id);
 
     res.cookie('jwt-refresh', refreshToken, {

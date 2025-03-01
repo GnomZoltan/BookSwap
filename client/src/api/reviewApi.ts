@@ -30,3 +30,12 @@ export function createReview(createReviewDto: CreateReviewDto) {
         }
     );
 }
+
+export function deleteReview(id: string) {
+    return axiosInstance.delete(
+        `${REVIEW_CONTROLLER}/${id}`, 
+        {
+            withCredentials: true,
+        }
+    );
+}

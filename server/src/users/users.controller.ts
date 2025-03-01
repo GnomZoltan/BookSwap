@@ -47,10 +47,22 @@ export class UsersController {
     return clearUser;
   }
 
-  @Patch(':id')
+  @Patch()
   // Update only himself
-  update(@Param('id') id: string, @Body() updateUserDto: Prisma.UserUpdateInput) {
-    return this.usersService.update(id, updateUserDto);
+  update(@Body() updateUserDto: Prisma.UserUpdateInput, @Req() req: any) {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      throw new Error('Authorization token is missing');
+    }
+
+    const decoded = jwt.decode(token) as { id: string };
+
+    if (!decoded || !decoded.id) {
+      throw new Error('Invalid token');
+    }
+
+    return this.usersService.update(decoded.id, updateUserDto);
   }
 
   @Delete(':id')
