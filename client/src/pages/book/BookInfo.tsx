@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './BookInfo.css';
 import { Book } from '../../types/Book';
-import { getBookById } from '../../api/bookApi';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { getBookById, deleteBook } from '../../api/bookApi';
+import { useParams, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '../../content/AuthContext';
 
 const BookInfo: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +12,11 @@ const BookInfo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const navigate = useNavigate();
+  const { accessToken } = useAuth(); 
+  
+  const loggedUserId = accessToken ? jwtDecode<{ id: string }>(accessToken).id : null;
+  const loggedUserRole = accessToken ? jwtDecode<{ role: string }>(accessToken).role : null;
+  const isAdmin = loggedUserRole === 'ADMIN'
 
   const fetchBook = async () => {
     setLoading(true);
@@ -24,6 +30,19 @@ const BookInfo: React.FC = () => {
       console.error('Failed to fetch book:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (id) {
+      try {
+        await deleteBook(id);
+        alert('Book deleted successfully.');
+        navigate('/home');
+      } catch (error) {
+        console.error('Failed to delete book:', error);
+        alert('Failed to delete the book. Please try again later.');
+      }
     }
   };
 
@@ -89,12 +108,24 @@ const BookInfo: React.FC = () => {
           </ul>
         </div>
         <button className="chat-button">Chat</button>
+        { loggedUserId !== book.userId &&
+        <button className="delete-button">
+          Exchange
+        </button> }
         <button
           className="profile-button"
           onClick={() => navigate(`/profile/${book.userId}`)}
         >
           View Owner's Profile
         </button>
+        { ((loggedUserId === book.userId) || isAdmin) &&
+        <button className="delete-button" onClick={handleDelete}>
+          Edit Details
+        </button> }
+        { ((loggedUserId === book.userId) || isAdmin) &&
+        <button className="delete-button" onClick={handleDelete}>
+          Delete Book
+        </button> }
       </div>
     </div>
   );

@@ -125,6 +125,19 @@ body {
   background-color: #218838;
 }
 
+.delete-profile-btn {
+  padding: 10px 20px;
+  background-color: #f52d1f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.delete-profile-btn:hover {
+  background-color: #b61c08;
+}
+
 .profile-section-content {
   margin-top: 20px;
   padding: 20px;
@@ -164,4 +177,53 @@ body {
   overflow: visible;
   width: 100%; /* Full width */
   box-sizing: border-box;
+}
+
+.create-review-section {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.create-review-section label {
+  font-size: 16px;
+  color: #333;
+}
+
+.create-review-section input,
+.create-review-section textarea {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.create-review-section input[type="number"] {
+  max-width: 120px;
+}
+
+.create-review-section textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.create-review-section button {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  align-self: flex-start; /* Aligns the button to the left */
+  font-size: 16px;
+}
+
+.create-review-section button:hover {
+  background-color: #0056b3;
 }

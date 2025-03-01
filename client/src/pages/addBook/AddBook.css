@@ -1,0 +1,75 @@
+.book-addition-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .book-addition-form .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .book-addition-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .book-addition-form input,
+  .book-addition-form textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .book-addition-form .toggle-button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .book-addition-form .toggle-button.active {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .genre-popup {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -20%);
+    background: rgb(36, 34, 34);
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    z-index: 1000;
+  }
+  
+  .genre-popup-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .genre-item {
+    margin-bottom: 10px;
+  }
+  
+  .selected-genres span {
+    margin-right: 10px;
+    background: #e9ecef;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  
+  .submit-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+  }
+  

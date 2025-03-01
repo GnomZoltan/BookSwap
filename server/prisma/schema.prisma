@@ -146,6 +146,8 @@ model ExchangeRequest {
 
   sender User @relation("SenderExchangeRequests", fields: [senderId], references: [id])
   receiver User @relation("ReceiverExchangeRequests", fields: [receiverId], references: [id])
-  senderBook BookForExchange @relation("SenderBookRelation", fields: [senderBookId], references: [id])
-  receiverBook BookForExchange @relation("ReceiverBookRelation", fields: [receiverBookId], references: [id])
+  
+  senderBook BookForExchange @relation("SenderBookRelation", fields: [senderBookId], references: [id], onDelete: Cascade)
+  receiverBook BookForExchange @relation("ReceiverBookRelation", fields: [receiverBookId], references: [id], onDelete: Cascade)
 }
+

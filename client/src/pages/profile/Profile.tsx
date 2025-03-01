@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './Profile.css';
 import { User } from '../../types/User';
-import { getMyself, getSomeUser } from '../../api/userApi';
+import { getMyself, getSomeUser, deleteUser } from '../../api/userApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import LogoutButton from '../loginAndLogout/LogoutButton';
-import { getSentReviews, getReceivedReviews } from '../../api/reviewApi';
+import { getSentReviews, getReceivedReviews, deleteReview, createReview } from '../../api/reviewApi';
 import { getSentRequests, getReceivedRequests } from '../../api/requestApi';
 import BookCard from '../../components/bookCard/BookCard';
 import { getBooksByOwnerId } from '../../api/bookApi';
@@ -17,11 +17,15 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string>('');
   const [sectionContent, setSectionContent] = useState<any[]>([]);
+  const [rating, setRating] = useState<string>('');
+  const [comment, setComment] = useState<string>('');
   const navigate = useNavigate();
   const { accessToken } = useAuth(); 
 
   const loggedUserId = accessToken ? jwtDecode<{ id: string }>(accessToken).id : null;
   const isOwnProfile = loggedUserId === userId
+  const loggedUserRole = accessToken ? jwtDecode<{ role: string }>(accessToken).role : null;
+  const isAdmin = loggedUserRole === 'ADMIN'
 
   const fetchUser = async () => {
     setLoading(true);
@@ -36,42 +40,79 @@ const Profile: React.FC = () => {
     }
   };
 
-  const fetchSectionData = async (section: string) => {
-    setSectionContent([]); 
-  
-    if (!user?.id) {
-      console.error("User ID is required to fetch data.");
+  const handleCreateReview = async () => {
+    if (!rating || !comment) {
+      alert('Please provide both a rating and a comment.');
       return;
     }
-  
-    let fetchFunction;
-    switch (section) {
-      case 'books':
-        fetchFunction = () => getBooksByOwnerId(user.id);
-        break;
-      case 'sent-requests':
-        fetchFunction = () => getSentRequests(user.id);
-        break;
-      case 'received-requests':
-        fetchFunction = () => getReceivedRequests(user.id);
-        break;
-      case 'sent-reviews':
-        fetchFunction = () => getSentReviews(user.id);
-        break;
-      case 'received-reviews':
-        fetchFunction = () => getReceivedReviews(user.id);
-        break;
-      default:
-        return;
-    }
-  
+
     try {
-      const response = await fetchFunction();
-      setSectionContent(response.data);
+      await createReview({ reviewedUserId: userId!, rating: parseFloat(rating), comment });
+      alert('Review created successfully.');
+      setRating('');
+      setComment('');
+      setActiveSection('');
     } catch (error) {
-      console.error(`Failed to fetch ${section} data:`, error);
+      console.error('Failed to create review:', error);
+      alert('Failed to create the review. Please try again later.');
     }
   };
+
+  const handleSetActiveSection = (section: string) => {
+    if (section === 'create-review') {
+        setSectionContent([]);
+    }
+    setActiveSection(section);
+  };
+
+  const fetchSectionData = async (section: string) => {
+    if (!user?.id) {
+        console.error("User ID is required to fetch data.");
+        return;
+    }
+
+    let fetchFunction;
+    switch (section) {
+        case 'books':
+            fetchFunction = () => getBooksByOwnerId(user.id);
+            break;
+        case 'sent-requests':
+            fetchFunction = () => getSentRequests(user.id);
+            break;
+        case 'received-requests':
+            fetchFunction = () => getReceivedRequests(user.id);
+            break;
+        case 'sent-reviews':
+            fetchFunction = () => getSentReviews(user.id);
+            break;
+        case 'received-reviews':
+            fetchFunction = () => getReceivedReviews(user.id);
+            break;
+        default:
+            setSectionContent([]);
+            return;
+    }
+
+    try {
+        const response = await fetchFunction();
+        setSectionContent(response.data);
+    } catch (error) {
+        console.error(`Failed to fetch ${section} data:`, error);
+    }
+  };
+
+  const handleDelete = async () => {
+      if (userId) {
+        try {
+          await deleteUser(userId);
+          alert('User deleted successfully.');
+          navigate('/');
+        } catch (error) {
+          console.error('Failed to delete user:', error);
+          alert('Failed to delete the user. Please try again later.');
+        }
+      }
+    };
   
   useEffect(() => {
     fetchUser();
@@ -84,26 +125,91 @@ const Profile: React.FC = () => {
   }, [activeSection]);
 
   const renderSectionContent = () => {
+    const handleDeleteReview = async (reviewId: string) => {
+      try {
+        await deleteReview(reviewId); 
+        alert('Review deleted successfully.');
+        setSectionContent((prevContent) => prevContent.filter((review) => review.id !== reviewId));
+      } catch (error) {
+        console.error('Failed to delete review:', error);
+        alert('Failed to delete the review. Please try again later.');
+      }
+    };
+
+    if (activeSection === 'create-review') {
+      return (
+          <div className="create-review-section">
+              <label>
+                  <strong>Rating:</strong>
+                  <input
+                      type="number"
+                      min="1"
+                      max="5"
+                      step="0.1"
+                      value={rating}
+                      onChange={(e) => setRating(e.target.value)}
+                  />
+              </label>
+              <label>
+                  <strong>Comment:</strong>
+                  <textarea
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                  />
+              </label>
+              <button onClick={handleCreateReview} className="send-review-btn">
+                  Send Review
+              </button>
+          </div>
+      );
+    }
+
     if (!sectionContent || sectionContent.length === 0) {
-      return <p>No content available for this section.</p>;
+        return <p>No content available for this section.</p>;
     }
   
     switch (activeSection) {
       case 'books':
-      return (
-        <div className="profile-books-container">
-          {sectionContent.map((book) => (
-            <BookCard
-              key={book.id}
-              id={book.id}
-              title={book.title}
-              author={book.author}
-              city={book.city}
-              photoUrl={book.photos && book.photos.length > 0 ? book.photos[0].photoUrl : null}
-            />
-          ))}
-        </div>
-      );
+        return (
+          <div className="profile-books-container">
+            {sectionContent.map((book) => (
+              <BookCard
+                key={book.id}
+                id={book.id}
+                title={book.title}
+                author={book.author}
+                city={book.city}
+                photoUrl={book.photos && book.photos.length > 0 ? book.photos[0].photoUrl : null}
+              />
+            ))}
+          </div>
+        );
+      case 'create-review':
+        return (
+          <div className="create-review-section">
+            <label>
+              <strong>Rating:</strong>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                step="0.1"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+              />
+            </label>
+            <label>
+              <strong>Comment:</strong>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+            </label>
+            <button onClick={handleCreateReview} className="send-review-btn">
+              Send Review
+            </button>
+          </div>
+        );        
       case 'sent-requests':
         return sectionContent.map((request) => (
           <div key={request.id} className="profile-item">
@@ -131,6 +237,10 @@ const Profile: React.FC = () => {
             <p><strong>Rating:</strong> {review.rating}</p>
             <p><strong>Comment:</strong> {review.comment}</p>
             <p><strong>Reviewed At:</strong> {new Date(review.createdAt).toLocaleString()}</p>
+            { (isOwnProfile || isAdmin) && 
+            <button className="delete-review-btn" onClick={() => handleDeleteReview(review.id)}>
+              Delete Review
+            </button> }
           </div>
         ));
       case 'received-reviews':
@@ -140,6 +250,10 @@ const Profile: React.FC = () => {
             <p><strong>Rating:</strong> {review.rating}</p>
             <p><strong>Comment:</strong> {review.comment}</p>
             <p><strong>Received At:</strong> {new Date(review.createdAt).toLocaleString()}</p>
+            { isAdmin &&
+            <button className="delete-review-btn" onClick={() => handleDeleteReview(review.id)}>
+              Delete Review
+            </button> }
           </div>
         ));
       default:
@@ -147,7 +261,6 @@ const Profile: React.FC = () => {
     }
   };
   
-
   return (
     <div className="profile-container">
       {loading ? (
@@ -161,12 +274,15 @@ const Profile: React.FC = () => {
               <p className="profile-created-at">Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
               <p className="profile-rating">Rating: {user.avgRating.toFixed(1)}</p>
             </div>
-            {isOwnProfile && (
+            {(isOwnProfile || isAdmin ) && (
               <div className="profile-footer">
-                <button className="edit-profile-btn" onClick={() => navigate(`/edit-profile/${user.id}`)}>
+                <button className="edit-profile-btn" onClick={() => navigate("/edit-profile")}>
                   Edit Profile
                 </button>
                 <LogoutButton />
+                <button className="delete-profile-btn" onClick={handleDelete}>
+                  Delete Profile
+                </button>
               </div>
             )}
           </div>
@@ -175,7 +291,12 @@ const Profile: React.FC = () => {
             <button className="profile-btn" onClick={() => setActiveSection('books')}>
               {isOwnProfile ? 'My Books' : 'User Books'}
             </button>
-            {isOwnProfile && (
+            { (!isOwnProfile && !isAdmin ) && 
+              <button className="profile-btn" onClick={() => handleSetActiveSection('create-review')}>
+                Create Review
+              </button>
+            }
+            {(isOwnProfile || isAdmin) && (
               <>
                 <button className="profile-btn" onClick={() => setActiveSection('sent-requests')}>
                   Sent Requests
@@ -193,7 +314,11 @@ const Profile: React.FC = () => {
             )}
           </div>
           <div className="profile-section-content">
-            {sectionContent.length > 0 ? renderSectionContent() : <p>No content available for this section.</p>}
+            {activeSection === 'create-review'
+              ? renderSectionContent() 
+              : (sectionContent.length > 0 
+                ? renderSectionContent() 
+                : <p>No content available for this section.</p>)}
           </div>
         </div>
       ) : (

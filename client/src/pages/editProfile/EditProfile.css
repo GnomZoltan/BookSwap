@@ -1,0 +1,37 @@
+.user-edit-page {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .user-edit-form .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .user-edit-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .user-edit-form input,
+  .user-edit-form textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .user-edit-form .submit-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .user-edit-form .submit-button:hover {
+    background-color: #0056b3;
+  }
+  
