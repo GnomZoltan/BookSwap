@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Param, Delete, Req, UseGuards, Patch } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { Prisma } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 @UseGuards(JwtGuard)
 @Controller('books')
@@ -47,7 +47,7 @@ export class BooksController {
 
   @Patch(':id')
   // only yourself, other Admin
-  update(@Param('id') id: string, @Body() updateBookDto: Prisma.BookForExchangeUpdateInput) {
+  update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
     return this.booksService.update(id, updateBookDto);
   }
 

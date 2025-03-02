@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 @Injectable()
 export class BooksService {
@@ -74,12 +74,41 @@ export class BooksService {
     });
   }
 
-  async update(id: string, updateBookDto: Prisma.BookForExchangeUpdateInput) {
+  async update(id: string, updateBookDto: UpdateBookDto) {
+    const { genreNames, bookPhotos, ...bookData } = updateBookDto;
+  
+    // Fetch existing genres based on the provided names
+    const genres = await this.databaseService.genre.findMany({
+      where: {
+        name: { in: genreNames },
+      },
+      select: { id: true },
+    });
+  
     return this.databaseService.bookForExchange.update({
-      data: updateBookDto,
       where: { id },
+      data: {
+        ...bookData,
+        genre: {
+          deleteMany: {}, // Clear existing genre connections
+          create: genres.map((genre) => ({
+            genre: { connect: { id: genre.id } },
+          })),
+        },
+        photos: {
+          deleteMany: {}, // Clear existing photos
+          create: bookPhotos.map((photoUrl) => ({
+            photoUrl,
+          })),
+        },
+      },
+      include: {
+        genre: { include: { genre: true } },
+        photos: true,
+      },
     });
   }
+  
 
   async remove(id: string) {
     return this.databaseService.bookForExchange.delete({
