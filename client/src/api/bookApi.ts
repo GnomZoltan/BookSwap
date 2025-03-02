@@ -49,9 +49,9 @@ export function deleteBook(id: string) {
     );
 }
 
-export function updateBook(updateBookDto: UpdateBookDto) {
+export function updateBook(id:string, updateBookDto: UpdateBookDto) {
     return axiosInstance.patch(
-        BOOK_CONTROLLER,
+        `${BOOK_CONTROLLER}/${id}`,
         updateBookDto, 
         {
             withCredentials: true,

@@ -5,7 +5,7 @@ import { getMyself, getSomeUser, deleteUser } from '../../api/userApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import LogoutButton from '../loginAndLogout/LogoutButton';
 import { getSentReviews, getReceivedReviews, deleteReview, createReview } from '../../api/reviewApi';
-import { getSentRequests, getReceivedRequests } from '../../api/requestApi';
+import { getSentRequests, getReceivedRequests, deleteRequest, approveRequest, declineRequest } from '../../api/requestApi';
 import BookCard from '../../components/bookCard/BookCard';
 import { getBooksByOwnerId } from '../../api/bookApi';
 import { jwtDecode } from 'jwt-decode';
@@ -136,6 +136,39 @@ const Profile: React.FC = () => {
       }
     };
 
+    const handleDeleteRequest = async (requestId: string) => {
+      try {
+        await deleteRequest(requestId); 
+        alert('Request deleted successfully.');
+        setSectionContent((prevContent) => prevContent.filter((request) => request.id !== requestId));
+      } catch (error) {
+        console.error('Failed to delete request:', error);
+        alert('Failed to delete the request. Please try again later.');
+      }
+    };
+
+    const handleApproveRequest = async (requestId: string) => {
+      try {
+        await approveRequest(requestId); 
+        alert('Request deleted successfully.');
+        //setSectionContent((prevContent) => prevContent.filter((request) => request.id !== requestId));
+      } catch (error) {
+        console.error('Failed to delete request:', error);
+        alert('Failed to delete the request. Please try again later.');
+      }
+    };
+
+    const handleDeclineRequest = async (requestId: string) => {
+      try {
+        await declineRequest(requestId); 
+        alert('Request deleted successfully.');
+        //setSectionContent((prevContent) => prevContent.filter((request) => request.id !== requestId));
+      } catch (error) {
+        console.error('Failed to delete request:', error);
+        alert('Failed to delete the request. Please try again later.');
+      }
+    };
+
     if (activeSection === 'create-review') {
       return (
           <div className="create-review-section">
@@ -218,7 +251,12 @@ const Profile: React.FC = () => {
             <p><strong>Requested Book:</strong> {request.receiverBookId}</p>
             <p><strong>Status:</strong> {request.status}</p>
             <p><strong>Requested At:</strong> {new Date(request.createdAt).toLocaleString()}</p>
+            { ((isOwnProfile && request.status === 'PENDING') || isAdmin) && 
+            <button className="delete-review-btn" onClick={() => handleDeleteRequest(request.id)}>
+              Delete Request
+            </button> }
           </div>
+          
         ));
       case 'received-requests':
         return sectionContent.map((request) => (
@@ -228,6 +266,14 @@ const Profile: React.FC = () => {
             <p><strong>Your Book:</strong> {request.receiverBookId}</p>
             <p><strong>Status:</strong> {request.status}</p>
             <p><strong>Received At:</strong> {new Date(request.createdAt).toLocaleString()}</p>
+            { (isOwnProfile && request.status === 'PENDING') && 
+            <button className="delete-review-btn" onClick={() => handleApproveRequest(request.id)}>
+              Approve Request
+            </button> }
+            { (isOwnProfile && request.status === 'PENDING') && 
+            <button className="delete-review-btn" onClick={() => handleDeclineRequest(request.id)}>
+              Decline Request
+            </button> }
           </div>
         ));
       case 'sent-reviews':

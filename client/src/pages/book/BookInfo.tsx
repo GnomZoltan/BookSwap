@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import './BookInfo.css';
 import { Book } from '../../types/Book';
-import { getBookById, deleteBook } from '../../api/bookApi';
+import { getBookById, deleteBook, getBooksByOwnerId } from '../../api/bookApi';
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../content/AuthContext';
+import BookCard from '../../components/bookCard/BookCard';
+import { createRequest } from '../../api/requestApi';
 
 const BookInfo: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [sectionContent, setSectionContent] = useState<any[]>([]);
   const navigate = useNavigate();
   const { accessToken } = useAuth(); 
   
@@ -46,6 +49,55 @@ const BookInfo: React.FC = () => {
     }
   };
 
+  const handleCreateRequest = async (senderBookId: string) => {
+    if (id) {
+      try {
+        const receiverId = book?.userId!;
+        const receiverBookId = id;
+        await createRequest({receiverId, receiverBookId, senderBookId});
+        alert('Request sent successfully.');
+        navigate('/home');
+      } catch (error) {
+        console.error('Failed to delete book:', error);
+        alert('Failed to send the request. Please try again later.');
+      }
+    }
+  };
+
+  const fetchBooksForExchange = async () => {
+    try {
+      const response = await getBooksByOwnerId(loggedUserId!);
+      setSectionContent(response.data);
+    } catch (error) {
+      console.error(`Failed to fetch data:`, error);
+    }
+  };
+
+  const renderSectionContent = () => {
+    if (!sectionContent || sectionContent.length === 0) {
+      return <p>No content available for this section.</p>;
+    }
+  
+    return (
+      <div className="profile-books-container">
+        {sectionContent.map((book) => (
+          <div key={book.id} className="book-card-container">
+            {/* Wrap BookCard with a clickable div or button */}
+            <div onClick={() => handleCreateRequest(book.id)} className="book-card-clickable">
+              <BookCard
+                id={book.id}
+                title={book.title}
+                author={book.author}
+                city={book.city}
+                photoUrl={book.photos && book.photos.length > 0 ? book.photos[0].photoUrl : null}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+  
   useEffect(() => {
     fetchBook();
   }, [id]);
@@ -109,7 +161,7 @@ const BookInfo: React.FC = () => {
         </div>
         <button className="chat-button">Chat</button>
         { loggedUserId !== book.userId &&
-        <button className="delete-button">
+        <button className="delete-button" onClick={fetchBooksForExchange}>
           Exchange
         </button> }
         <button
@@ -119,7 +171,7 @@ const BookInfo: React.FC = () => {
           View Owner's Profile
         </button>
         { ((loggedUserId === book.userId) || isAdmin) &&
-        <button className="delete-button" onClick={handleDelete}>
+        <button className="delete-button" onClick={() => navigate(`/add-book/${book.id}`)}>
           Edit Details
         </button> }
         { ((loggedUserId === book.userId) || isAdmin) &&
@@ -127,6 +179,10 @@ const BookInfo: React.FC = () => {
           Delete Book
         </button> }
       </div>
+      { (sectionContent.length > 0) &&
+        <div className="profile-section-content">
+          {renderSectionContent()}  
+        </div> }
     </div>
   );
 };
