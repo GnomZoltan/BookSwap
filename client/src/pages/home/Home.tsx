@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './Home.css';
 import { Book } from '../../types/Book';
-import { getAllBooks } from '../../api/bookApi';
+import { getAllAvailableBooks } from '../../api/bookApi';
 import { useNavigate } from 'react-router-dom';
 import BookCard from '../../components/bookCard/BookCard';
 import { jwtDecode } from 'jwt-decode';
@@ -18,7 +18,7 @@ const Home: React.FC = () => {
   const fetchBooks = async () => {
     setLoading(true);
     try {
-      const response = await getAllBooks();
+      const response = await getAllAvailableBooks();
       const data = response.data;
       setBooks(data);
     } catch (error) {
