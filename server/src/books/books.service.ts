@@ -58,6 +58,15 @@ export class BooksService {
     });
   }
 
+  async findAllAvailable() {
+    return this.databaseService.bookForExchange.findMany({
+      where: {
+        status: 'AVAILABLE'
+      },
+      include: { genre: { include: { genre: true } }, photos: true },
+    });
+  }
+
   async findByOwnerId(userId: string) {
     return this.databaseService.bookForExchange.findMany({
       where: {
