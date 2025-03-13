@@ -17,6 +17,7 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string>('');
   const [sectionContent, setSectionContent] = useState<any[]>([]);
+  const [isShowingInactive, setIsShowingInactive] = useState<boolean>(false);
   const [rating, setRating] = useState<string>('');
   const [comment, setComment] = useState<string>('');
   const navigate = useNavigate();
@@ -169,6 +170,41 @@ const Profile: React.FC = () => {
       }
     };
 
+    const filteredBooks = sectionContent.filter((book) => {
+      if (isShowingInactive) return book.status === 'SWAPPED';
+      return book.status === 'AVAILABLE';
+    });
+
+    if (activeSection === 'books') {
+      return (
+        <>
+        <div className="books-toggle-container">
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={isShowingInactive}
+              onChange={() => setIsShowingInactive((prev) => !prev)}
+            />
+            <span className="slider round"></span>
+          </label>
+          <span className="toggle-label">{isShowingInactive ? 'Show Active Books' : 'Show Inactive Books'}</span>
+        </div>
+        <div className="profile-books-container">
+          {filteredBooks.map((book) => (
+            <BookCard
+              key={book.id}
+              id={book.id}
+              title={book.title}
+              author={book.author}
+              city={book.city}
+              photoUrl={book.photos && book.photos.length > 0 ? book.photos[0].photoUrl : null}
+            />
+          ))}
+        </div>
+        </>
+      );
+    }
+
     if (activeSection === 'create-review') {
       return (
           <div className="create-review-section">
@@ -202,21 +238,6 @@ const Profile: React.FC = () => {
     }
   
     switch (activeSection) {
-      case 'books':
-        return (
-          <div className="profile-books-container">
-            {sectionContent.map((book) => (
-              <BookCard
-                key={book.id}
-                id={book.id}
-                title={book.title}
-                author={book.author}
-                city={book.city}
-                photoUrl={book.photos && book.photos.length > 0 ? book.photos[0].photoUrl : null}
-              />
-            ))}
-          </div>
-        );
       case 'create-review':
         return (
           <div className="create-review-section">

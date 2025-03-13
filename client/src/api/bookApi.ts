@@ -12,6 +12,15 @@ export function getAllBooks() {
     );
 }
 
+export function getAllAvailableBooks() {
+    return axiosInstance.get(
+        `${BOOK_CONTROLLER}/available`, 
+        {
+            withCredentials: true,
+        }
+    );
+}
+
 export function getBookById(id: string) {
     return axiosInstance.get(
         `${BOOK_CONTROLLER}/${id}`, 
