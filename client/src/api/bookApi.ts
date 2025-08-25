@@ -12,6 +12,23 @@ export function getAllBooks() {
     );
 }
 
+export function searchBooksByGenres(genreNames: string[]) {
+    return axiosInstance.get(`${BOOK_CONTROLLER}/by-genres`, {
+        params: { genres: genreNames.join(',') },
+        withCredentials: true,
+    });
+}
+
+export function searchBooks(query: string) {
+    return axiosInstance.get(
+        `${BOOK_CONTROLLER}/search`,
+        {
+            params: { query },
+            withCredentials: true,
+        }
+    );
+}
+
 export function getAllAvailableBooks() {
     return axiosInstance.get(
         `${BOOK_CONTROLLER}/available`, 

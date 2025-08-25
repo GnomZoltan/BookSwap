@@ -14,3 +14,13 @@ export function uploadPhoto(formData: FormData) {
         }
     );
 }
+
+export function deletePhoto(fileUrl: string) {
+    const fileName = fileUrl.split('/').pop() || '';
+    return axiosInstance.delete(
+        `${PHOTO_CONTROLLER}/${fileName}`,
+        {
+            withCredentials: true,
+        }
+    );
+}

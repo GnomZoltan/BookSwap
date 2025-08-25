@@ -7,10 +7,10 @@ const LoginRegisterButton: React.FC = () => {
   return (
     <div className="header-buttons">
       <button type="button" className="button" onClick={() => navigate("/login")}>
-        Login
+        Увійти
       </button>
       <button type="button" className="button" onClick={() => navigate("/register")}>
-        Register
+        Зареєструватись
       </button>
     </div>
   );

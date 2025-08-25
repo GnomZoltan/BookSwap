@@ -1,6 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SignIn from "./pages/signIn/SignIn";
-import SignUp from "./pages/signUp/SignUp";
 import Welcome from "./pages/welcome/Welcome";
 import Home from "./pages/home/Home";
 import './App.css'
@@ -16,8 +14,8 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<Welcome />} />
-          <Route path="/register" element={<SignUp />} />
-          <Route path="/login" element={<SignIn />} />
+          {/* <Route path="/register" element={<SignUp />} />
+          <Route path="/login" element={<SignIn />} /> */}
           <Route path="/home" element={<Home />} />
           <Route path="/book/:id" element={<BookInfo />} />
           <Route path="/add-book/:id?" element={<AddBook />} />

@@ -7,6 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../content/AuthContext';
 import BookCard from '../../components/bookCard/BookCard';
 import { createRequest } from '../../api/requestApi';
+import { getMyself } from '../../api/userApi';
 
 const BookInfo: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,7 @@ const BookInfo: React.FC = () => {
   const [sectionContent, setSectionContent] = useState<any[]>([]);
   const navigate = useNavigate();
   const { accessToken } = useAuth(); 
+  const [userPhoto, setUserPhoto] = useState('');
   
   const loggedUserId = accessToken ? jwtDecode<{ id: string }>(accessToken).id : null;
   const loggedUserRole = accessToken ? jwtDecode<{ role: string }>(accessToken).role : null;
@@ -97,9 +99,20 @@ const BookInfo: React.FC = () => {
       </div>
     );
   };
+
+  const fetchPhoto = async () => {
+    try {
+      const response = await getMyself();
+      const data = response.data.photoUrl;
+      setUserPhoto(data);
+    } catch (error) {
+      console.error('Failed to fetch photo:', error);
+    }
+  };
   
   useEffect(() => {
     fetchBook();
+    fetchPhoto();
   }, [id]);
 
   const handlePrevPhoto = () => {
@@ -123,66 +136,92 @@ const BookInfo: React.FC = () => {
   }
 
   return (
-    <div className="book-info-container">
-      {/* Photo Slider */}
-      <div className="book-photos-slider">
-        {book.photos.length > 0 && (
-          <>
-            <button className="slider-arrow slider-arrow-left" onClick={handlePrevPhoto}>
-              &#8592;
+    <div className="home-container">
+      <header className="home-header">
+          <div className="logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/home')}>
+            BookSwap
+          </div>
+          <div className="header-actions">
+            <button className="custom-button my-liked" onClick={() => navigate('/wishlist')}>
+              ♡
             </button>
-            <img
-              src={book.photos[currentPhotoIndex].photoUrl}
-              alt={`Photo ${currentPhotoIndex + 1}`}
-              className="slider-photo"
-            />
-            <button className="slider-arrow slider-arrow-right" onClick={handleNextPhoto}>
-              &#8594;
+            <button className="custom-button add-book" onClick={() => navigate('/add-book')}>
+              +
             </button>
-          </>
-        )}
-      </div>
-
-      {/* Book Details */}
-      <div className="book-details-container">
-        <h1 className="book-title">{book.title}</h1>
-        <p><strong>Author:</strong> {book.author}</p>
-        <p><strong>Language:</strong> {book.language}</p>
-        <p><strong>City:</strong> {book.city}</p>
-        <p><strong>Condition:</strong> {book.condition}</p>
-        <p><strong>Description:</strong> {book.description}</p>
-        <div className="book-genres">
-          <strong>Genres:</strong>
-          <ul>
-            {book.genre.map((g) => (
-              <li key={g.genreId}>{g.genre.name}</li>
-            ))}
-          </ul>
+            <button
+              className="custom-button profile"
+              onClick={() => navigate(`/profile/${loggedUserId}`)}
+            >
+              <img src={userPhoto} alt="profile" />
+            </button>
+          </div>
+        </header>
+      <div className="book-info-container">
+        {/* Photo Slider */}
+        <div className="book-photos-slider">
+          {book.photos.length > 0 && (
+            <>
+              <button className="slider-arrow slider-arrow-left" onClick={handlePrevPhoto}>
+                &#8592;
+              </button>
+              <img
+                src={book.photos[currentPhotoIndex].photoUrl}
+                alt={`Photo ${currentPhotoIndex + 1}`}
+                className="slider-photo"
+              />
+              <button className="slider-arrow slider-arrow-right" onClick={handleNextPhoto}>
+                &#8594;
+              </button>
+            </>
+          )}
         </div>
-        <button className="chat-button">Chat</button>
-        { loggedUserId !== book.userId &&
-        <button className="delete-button" onClick={fetchBooksForExchange}>
-          Exchange
-        </button> }
-        <button
-          className="profile-button"
-          onClick={() => navigate(`/profile/${book.userId}`)}
-        >
-          View Owner's Profile
-        </button>
-        { ((loggedUserId === book.userId) || isAdmin) &&
-        <button className="delete-button" onClick={() => navigate(`/add-book/${book.id}`)}>
-          Edit Details
-        </button> }
-        { ((loggedUserId === book.userId) || isAdmin) &&
-        <button className="delete-button" onClick={handleDelete}>
-          Delete Book
-        </button> }
+
+        {/* Book Details */}
+        <div className="book-details-container">
+          <h1 className="book-title">{book.title}</h1>
+          <p><strong>Автор:</strong> {book.author}</p>
+          <p><strong>Мова:</strong> {book.language}</p>
+          <p><strong>Місто:</strong> {book.city}</p>
+          <p><strong>Стан:</strong> {book.condition}</p>
+          <p><strong>Опис:</strong> {book.description}</p>
+          <div className="book-genres">
+            <strong>Жанри:</strong>
+            <ul>
+              {book.genre.map((g) => (
+                <li key={g.genreId}>{g.genre.name}</li>
+              ))}
+            </ul>
+          </div>
+          {/* <button className="chat-button">Chat</button> */}
+          { loggedUserId !== book.userId &&
+          <button className="delete-button" onClick={fetchBooksForExchange}>
+            Обмін
+          </button> }
+          <button
+            className="delete-button"
+            onClick={() => navigate(`/profile/${book.userId}`)}
+          >
+            Профіль власника
+          </button>
+          { ((loggedUserId === book.userId) || isAdmin) &&
+          <button className="delete-button" onClick={() => navigate(`/add-book/${book.id}`)}>
+            Змінити деталі
+          </button> }
+          { ((loggedUserId === book.userId) || isAdmin) &&
+          <button className="delete-button" onClick={handleDelete}>
+            Видалити книгу
+          </button> }
+        </div>
+        {sectionContent.length > 0 && (
+          <div className="profile-section-content">
+            <h2>Ваші книги для обміну</h2>
+            <div className="profile-books-scroll">
+              {renderSectionContent()}
+          </div>
+  </div>
+)}
+
       </div>
-      { (sectionContent.length > 0) &&
-        <div className="profile-section-content">
-          {renderSectionContent()}  
-        </div> }
     </div>
   );
 };

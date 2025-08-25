@@ -22,11 +22,37 @@ const Profile: React.FC = () => {
   const [comment, setComment] = useState<string>('');
   const navigate = useNavigate();
   const { accessToken } = useAuth(); 
+  const [userPhoto, setUserPhoto] = useState('');
 
   const loggedUserId = accessToken ? jwtDecode<{ id: string }>(accessToken).id : null;
   const isOwnProfile = loggedUserId === userId
   const loggedUserRole = accessToken ? jwtDecode<{ role: string }>(accessToken).role : null;
   const isAdmin = loggedUserRole === 'ADMIN'
+
+  useEffect(() => {
+    // Функція для обробки натискання "Назад"
+    const handlePopState = () => {
+      navigate('/home', { replace: true });
+    };
+
+    // Додаємо слухач на подію popstate
+    window.addEventListener('popstate', handlePopState);
+
+    // Прибираємо слухач при демонтажі компонента
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate]);
+
+  const fetchPhoto = async () => {
+    try {
+      const response = await getMyself();
+      const data = response.data.photoUrl;
+      setUserPhoto(data);
+    } catch (error) {
+      console.error('Failed to fetch photo:', error);
+    }
+  };
 
   const fetchUser = async () => {
     setLoading(true);
@@ -117,6 +143,7 @@ const Profile: React.FC = () => {
   
   useEffect(() => {
     fetchUser();
+    fetchPhoto();
   }, []);
 
   useEffect(() => {
@@ -128,7 +155,7 @@ const Profile: React.FC = () => {
   const renderSectionContent = () => {
     const handleDeleteReview = async (reviewId: string) => {
       try {
-        await deleteReview(reviewId); 
+        await deleteReview(reviewId);   
         alert('Review deleted successfully.');
         setSectionContent((prevContent) => prevContent.filter((review) => review.id !== reviewId));
       } catch (error) {
@@ -187,7 +214,7 @@ const Profile: React.FC = () => {
             />
             <span className="slider round"></span>
           </label>
-          <span className="toggle-label">{isShowingInactive ? 'Show Active Books' : 'Show Inactive Books'}</span>
+          <span className="toggle-label">Показати неактивні книги</span>
         </div>
         <div className="profile-books-container">
           {filteredBooks.map((book) => (
@@ -209,7 +236,7 @@ const Profile: React.FC = () => {
       return (
           <div className="create-review-section">
               <label>
-                  <strong>Rating:</strong>
+                  <strong>Рейтинг:</strong>
                   <input
                       type="number"
                       min="1"
@@ -220,14 +247,14 @@ const Profile: React.FC = () => {
                   />
               </label>
               <label>
-                  <strong>Comment:</strong>
+                  <strong>Коментар:</strong>
                   <textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                   />
               </label>
               <button onClick={handleCreateReview} className="send-review-btn">
-                  Send Review
+                  Надіслати відгук
               </button>
           </div>
       );
@@ -242,7 +269,7 @@ const Profile: React.FC = () => {
         return (
           <div className="create-review-section">
             <label>
-              <strong>Rating:</strong>
+              <strong>Рейтинг:</strong>
               <input
                 type="number"
                 min="1"
@@ -253,73 +280,84 @@ const Profile: React.FC = () => {
               />
             </label>
             <label>
-              <strong>Comment:</strong>
+              <strong>Коментар:</strong>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
             </label>
-            <button onClick={handleCreateReview} className="send-review-btn">
-              Send Review
+            <button onClick={handleCreateReview} className="logout-btn">
+              Надіслати відгук
             </button>
           </div>
         );        
       case 'sent-requests':
         return sectionContent.map((request) => (
           <div key={request.id} className="profile-item">
-            <p><strong>To:</strong> {request.receiverId}</p>
-            <p><strong>Your Book:</strong> {request.senderBookId}</p>
-            <p><strong>Requested Book:</strong> {request.receiverBookId}</p>
-            <p><strong>Status:</strong> {request.status}</p>
-            <p><strong>Requested At:</strong> {new Date(request.createdAt).toLocaleString()}</p>
-            { ((isOwnProfile && request.status === 'PENDING') || isAdmin) && 
-            <button className="delete-review-btn" onClick={() => handleDeleteRequest(request.id)}>
-              Delete Request
-            </button> }
+            <img src={request.senderBookPhoto} alt="Sender Book" />
+            <div className="text-content">
+              <p><strong>Кому:</strong> {request.receiverId}</p>
+              <p><strong>Ваша книга:</strong> {request.senderBookId}</p>
+              <p><strong>Бажана книга:</strong> {request.receiverBookId}</p>
+              <p><strong>Статус:</strong> {request.status}</p>
+              <p><strong>Запрошено:</strong> {new Date(request.createdAt).toLocaleString()}</p>
+              {((isOwnProfile && request.status === 'PENDING') || isAdmin) && (
+                <button
+                  className="delete-review-btn"
+                  onClick={() => handleDeleteRequest(request.id)}
+                >
+                  Видалити запит
+                </button>
+              )}
+            </div>
+            <img src={request.receiverBookPhoto} alt="Receiver Book" />
           </div>
-          
-        ));
+        ));        
       case 'received-requests':
         return sectionContent.map((request) => (
           <div key={request.id} className="profile-item">
-            <p><strong>From:</strong> {request.senderId}</p>
-            <p><strong>Sender's Book:</strong> {request.senderBookId}</p>
-            <p><strong>Your Book:</strong> {request.receiverBookId}</p>
-            <p><strong>Status:</strong> {request.status}</p>
-            <p><strong>Received At:</strong> {new Date(request.createdAt).toLocaleString()}</p>
-            { (isOwnProfile && request.status === 'PENDING') && 
-            <button className="delete-review-btn" onClick={() => handleApproveRequest(request.id)}>
-              Approve Request
-            </button> }
-            { (isOwnProfile && request.status === 'PENDING') && 
-            <button className="delete-review-btn" onClick={() => handleDeclineRequest(request.id)}>
-              Decline Request
-            </button> }
+            <img src={request.senderBookPhoto} alt="Sender Book" />
+            <div className="text-content">
+              <p><strong>Від:</strong> {request.senderId}</p>
+              <p><strong>Запропонована книга:</strong> {request.senderBookId}</p>
+              <p><strong>Ваша книга:</strong> {request.receiverBookId}</p>
+              <p><strong>Статус:</strong> {request.status}</p>
+              <p><strong>Отримано:</strong> {new Date(request.createdAt).toLocaleString()}</p>
+              { (isOwnProfile && request.status === 'PENDING') && 
+              <button className="delete-review-btn" onClick={() => handleApproveRequest(request.id)}>
+                Прийняти запит
+              </button> }
+              { (isOwnProfile && request.status === 'PENDING') && 
+              <button className="delete-review-btn" onClick={() => handleDeclineRequest(request.id)}>
+                Відхилити запит
+              </button> }
+            </div>
+            <img src={request.receiverBookPhoto} alt="Receiver Book" />
           </div>
         ));
       case 'sent-reviews':
         return sectionContent.map((review) => (
           <div key={review.id} className="profile-item">
-            <p><strong>To:</strong> {review.reviewedUserId}</p>
-            <p><strong>Rating:</strong> {review.rating}</p>
-            <p><strong>Comment:</strong> {review.comment}</p>
-            <p><strong>Reviewed At:</strong> {new Date(review.createdAt).toLocaleString()}</p>
+            <p><strong>Кому:</strong> {review.reviewedUserId}</p>
+            <p><strong>Рейтинг:</strong> {review.rating}</p>
+            <p><strong>Коментар:</strong> {review.comment}</p>
+            <p><strong>Оцінено:</strong> {new Date(review.createdAt).toLocaleString()}</p>
             { (isOwnProfile || isAdmin) && 
             <button className="delete-review-btn" onClick={() => handleDeleteReview(review.id)}>
-              Delete Review
+              Видалити відгук
             </button> }
           </div>
         ));
       case 'received-reviews':
         return sectionContent.map((review) => (
           <div key={review.id} className="profile-item">
-            <p><strong>From:</strong> {review.reviewerId}</p>
-            <p><strong>Rating:</strong> {review.rating}</p>
-            <p><strong>Comment:</strong> {review.comment}</p>
-            <p><strong>Received At:</strong> {new Date(review.createdAt).toLocaleString()}</p>
+            <p><strong>Від:</strong> {review.reviewerId}</p>
+            <p><strong>Рейтинг:</strong> {review.rating}</p>
+            <p><strong>Коментар:</strong> {review.comment}</p>
+            <p><strong>Отримано:</strong> {new Date(review.createdAt).toLocaleString()}</p>
             { isAdmin &&
             <button className="delete-review-btn" onClick={() => handleDeleteReview(review.id)}>
-              Delete Review
+              Видалити відгук
             </button> }
           </div>
         ));
@@ -330,6 +368,25 @@ const Profile: React.FC = () => {
   
   return (
     <div className="profile-container">
+      <header className="home-header">
+        <div className="logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/home')}>
+          BookSwap
+        </div>
+        <div className="header-actions">
+          {/* <button className="custom-button my-chats" onClick={() => navigate('/my-chats')}>
+            ✉
+          </button> */}
+          <button className="custom-button my-liked" onClick={() => navigate('/wishlist')}>
+            ♡
+          </button>
+          <button className="custom-button add-book" onClick={() => navigate('/add-book')}>
+            +
+          </button>
+          <button className="custom-button profile" onClick={() => navigate(`/profile/${loggedUserId}`)}>
+            <img src={userPhoto} alt="profile" />
+          </button>
+        </div>
+      </header>
       {loading ? (
         <p>Loading profile...</p>
       ) : user ? (
@@ -338,17 +395,17 @@ const Profile: React.FC = () => {
             <img src={user.photoUrl} alt={user.username} className="profile-photo" />
             <div className="profile-header-info">
               <h1 className="profile-username">{user.username}</h1>
-              <p className="profile-created-at">Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
-              <p className="profile-rating">Rating: {user.avgRating.toFixed(1)}</p>
+              <p className="profile-created-at">Приєднався: {new Date(user.createdAt).toLocaleDateString()}</p>
+              <p className="profile-rating">Рейтинг: {user.avgRating.toFixed(1)}</p>
             </div>
             {(isOwnProfile || isAdmin ) && (
               <div className="profile-footer">
                 <button className="edit-profile-btn" onClick={() => navigate("/edit-profile")}>
-                  Edit Profile
+                  Змінити профіль
                 </button>
                 <LogoutButton />
                 <button className="delete-profile-btn" onClick={handleDelete}>
-                  Delete Profile
+                  Видалити профіль
                 </button>
               </div>
             )}
@@ -356,26 +413,26 @@ const Profile: React.FC = () => {
           <p className="profile-description">{user.description || 'No description provided.'}</p>
           <div className="profile-actions-row">
             <button className="profile-btn" onClick={() => setActiveSection('books')}>
-              {isOwnProfile ? 'My Books' : 'User Books'}
+              {isOwnProfile ? 'Мої книги' : 'Книги користувача'}
             </button>
             { (!isOwnProfile && !isAdmin ) && 
               <button className="profile-btn" onClick={() => handleSetActiveSection('create-review')}>
-                Create Review
+                Створити відгук
               </button>
             }
             {(isOwnProfile || isAdmin) && (
               <>
                 <button className="profile-btn" onClick={() => setActiveSection('sent-requests')}>
-                  Sent Requests
+                  Надіслані запити
                 </button>
                 <button className="profile-btn" onClick={() => setActiveSection('received-requests')}>
-                  Received Requests
+                  Отримані запити
                 </button>
                 <button className="profile-btn" onClick={() => setActiveSection('sent-reviews')}>
-                  Sent Reviews
+                  Надіслані відгуки
                 </button>
                 <button className="profile-btn" onClick={() => setActiveSection('received-reviews')}>
-                  Received Reviews
+                  Отримані відгуки
                 </button>
               </>
             )}

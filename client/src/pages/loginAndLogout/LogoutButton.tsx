@@ -22,9 +22,9 @@ const LogoutButton: React.FC = () => {
   };
 
   return (
-    <div className="header-buttons">
-      <button className="button" onClick={handleClick}>
-        Logout
+    <div>
+      <button className="logout-btn" onClick={handleClick}>
+        Вийти
       </button>
     </div>
   );
