@@ -1,4 +1,3 @@
-/* Застосування box-sizing для кращої роботи з відступами */
 *,
 *::before,
 *::after {
@@ -15,108 +14,250 @@ body {
   flex-direction: column;
 }
 
-/* Full-size layout for PC/laptop */
+/* .home-container {
+  display: flex;
+  flex-direction: column;
+  width: 80vw;
+} */
+
 .home-container {
   display: flex;
-  justify-content: flex-start;
   flex-direction: column;
-  flex: 1;
-  height: 100vh;
-  width: 80vw;
-  overflow: hidden;
+  align-items: center; /* center children horizontally */
+  width: 100%;
 }
 
-/* Header pinned to the top */
-.home-header {
+/* .home-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 80%;
+  width: 80vw;
   height: 60px;
-  background-color: #353b42;
+  background-color: #ffffff;
   padding: 0 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
   z-index: 1000;
+} */
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 99vw;
+  height: 60px;
+  background-color: #ffffff;
+  padding: 0 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  z-index: 9999; /* raise this above dropdown */
 }
+
 
 .logo {
-  font-size: 0.7rem;
+  margin-top: 40px;
+  font-size: 2rem;
   font-weight: bold;
-  color: #ffffff;
+  color: #000000;
 }
 
+/* Header actions (buttons with icons) */
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 30px;
+  align-items: center;
 }
 
 .custom-button {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
-  padding: 8px 12px;
-  background-color: #007bff;
-  color: white;
+  width: 40px;  /* Ширина кнопок */
+  height: 40px; /* Висота кнопок */
+  background-color: transparent; /* Без фону */
   border: none;
-  border-radius: 5px;
+  /* border-radius: 50%; */
   cursor: pointer;
   transition: background-color 0.3s;
+  position: relative;
+  color: black;
 }
 
-.custom-button:hover {
-  background-color: #0056b3;
+/* Hover effect for buttons (для всіх кнопок окрім профілю) */
+.custom-button:hover:not(.profile) {
+  background-color: rgba(0, 0, 0, 0.3); /* Легкий фон при наведенні */
 }
+
+/* Профільна кнопка (без фону) */
+.custom-button.profile {
+  border: none;  /* Без меж */
+}
+
+.custom-button img {
+  width: 40px; /* Розмір іконки */
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%; /* Якщо це фото профілю */
+}
+
+/* Vertical divider between buttons */
+.header-actions .custom-button:not(:last-child) {
+  border-right: 2px solid rgb(0, 0, 0); /* Вертикальна риска між кнопками */
+}
+
 
 /* Search container */
+/* .search-container {
+  margin-top: 30px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(83, 74, 74, 0.1);
+}
+
+.search-bar {
+  flex: 1;
+  margin-right: 10px;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid rgb(0, 0, 0);;
+  border-radius: 5px;
+  background-color: rgb(255, 255, 255);
+} */
+
 .search-container {
-  margin-top: 60px; /* Adjust for header height */
-  width: 100%; /* Make search container full width */
+  margin-top: 80px; /* extra space because header is fixed */
+  width: 80vw;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 15px 20px;
-  background-color: #e9ecef;
+  background-color: #ffffff;
   box-shadow: 0 2px 5px rgba(83, 74, 74, 0.1);
-  height: 100px;
+  border-radius: 10px;
 }
 
 .search-bar {
-  width: 70%;
+  flex: 1;
   padding: 10px;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid #000;
   border-radius: 5px;
 }
 
-.search-container button {
-  margin-left: 10px;
+
+/* .dropdown-container {
+  position: relative;
+} */
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-button {
   padding: 10px 20px;
+  margin-right: 10px;
   font-size: 1rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+  border: 1px solid rgb(0, 0, 0);;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  position: relative; 
+  z-index: 1001; 
 }
 
-.search-container button:hover {
-  background-color: #218838;
+.dropdown-button:hover {
+  background-color: rgba(163, 163, 163, 0.6);
 }
+
+/* .dropdown-menu {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: 200px;
+  background-color: rgba(255, 255, 255, 0.9); 
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+} */
+
+/* .dropdown-menu {
+  position: absolute;
+  top: 100%; 
+  left: 0;
+  width: 220px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999; 
+} */
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 220px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 100; /* lower than header */
+}
+
+
+.checkbox-label {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #000000; /* Чорний колір тексту */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 
 /* Adjusting books container */
-.books-container {
+/* .books-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 20px;
   padding: 20px;
   background-color: #ffffff;
   overflow: visible;
-  width: 100%; /* Full width */
+  width: 100%;
   box-sizing: border-box;
+} */
+
+.books-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  width: 80vw;
+  max-width: 1200px;
+  margin: 20px auto; /* centers */
+  background-color: #ffffff;
+  box-sizing: border-box;
+  border-radius: 10px;
 }
 
 .books-container::-webkit-scrollbar {
