@@ -52,6 +52,58 @@ export class BooksService {
     })
   }
 
+  async searchBooks(query: string) {
+    if (!query) {
+      throw new Error('Query parameter is required for search');
+    }
+  
+    // Пошук за назвою книги
+    const booksByTitle = await this.databaseService.bookForExchange.findMany({
+      where: {
+        title: {
+          contains: query, // Пошук часткового збігу
+          mode: 'insensitive', // Нечутливий до регістру
+        },
+      },
+      include: { genre: { include: { genre: true } }, photos: true },
+    });
+  
+    // Якщо знайшли книги за назвою — повертаємо результат
+    if (booksByTitle.length > 0) {
+      return booksByTitle;
+    }
+  
+    // Якщо книг за назвою немає, шукаємо за автором
+    return this.databaseService.bookForExchange.findMany({
+      where: {
+        author: {
+          contains: query, // Пошук часткового збігу
+          mode: 'insensitive', // Нечутливий до регістру
+        },
+      },
+      include: { genre: { include: { genre: true } }, photos: true },
+    });
+  }
+
+  async findBooksByGenres(genreNames: string[]) {
+    if (!genreNames || genreNames.length === 0) {
+      throw new Error('Genre names are required');
+    }
+
+    return this.databaseService.bookForExchange.findMany({
+      where: {
+        genre: {
+          some: {
+            genre: {
+              name: { in: genreNames },
+            },
+          },
+        },
+      },
+      include: { genre: { include: { genre: true } }, photos: true },
+    });
+  }
+  
   async findAll() {
     return this.databaseService.bookForExchange.findMany({
       include: { genre: { include: { genre: true } }, photos: true },

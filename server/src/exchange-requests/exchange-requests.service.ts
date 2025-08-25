@@ -56,11 +56,13 @@ export class ExchangeRequestsService {
         senderBook: {
           select : {
             title: true,
+            photos: true,
           },
         },
         receiverBook: {
           select : {
             title: true,
+            photos: true,
           },
         },
       },
@@ -73,6 +75,8 @@ export class ExchangeRequestsService {
         senderBook: undefined, // Remove the original nested object
         receiverBookId: exhangeRequest.receiverBook.title, // Replace reviewedUserId with username
         receiverBook: undefined, // Remove the original nested object
+        receiverBookPhoto: exhangeRequest.receiverBook.photos[0].photoUrl,
+        senderBookPhoto: exhangeRequest.senderBook.photos[0].photoUrl,
       }))
     );
   }
@@ -91,11 +95,13 @@ export class ExchangeRequestsService {
         senderBook: {
           select : {
             title: true,
+            photos: true,
           },
         },
         receiverBook: {
           select : {
             title: true,
+            photos: true,
           },
         },
       },
@@ -108,6 +114,8 @@ export class ExchangeRequestsService {
         senderBook: undefined, // Remove the original nested object
         receiverBookId: exhangeRequest.receiverBook.title, // Replace reviewedUserId with username
         receiverBook: undefined, // Remove the original nested object
+        receiverBookPhoto: exhangeRequest.receiverBook.photos[0].photoUrl,
+        senderBookPhoto: exhangeRequest.senderBook.photos[0].photoUrl,
       }))
     );
   }

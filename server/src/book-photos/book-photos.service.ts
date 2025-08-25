@@ -23,17 +23,31 @@ export class BookPhotosService {
       const params: S3.PutObjectRequest = {
         Bucket: bucketName,
         Key: key,
-        Body: fileBuffer, // Використовуємо buffer замість fileStream
-        ContentType: 'image/jpeg', // Встановіть правильний MIME тип, залежно від типу файлу
+        Body: fileBuffer,
+        ContentType: 'image/jpeg', // Update MIME type if necessary
       };
-  
+
       const uploadResult = await this.s3.upload(params).promise();
-  
       console.log('File uploaded successfully. File location:', uploadResult.Location);
       return uploadResult.Location;
     } catch (error) {
       console.error('Error uploading file:', error);
       throw new Error('Failed to upload file to S3');
     }
-  }  
+  }
+
+  async deletePhoto(bucketName: string, fileName: string): Promise<void> {
+    try {
+      const params: S3.DeleteObjectRequest = {
+        Bucket: bucketName,
+        Key: fileName,
+      };
+
+      await this.s3.deleteObject(params).promise();
+      console.log(`File ${fileName} deleted successfully from bucket ${bucketName}`);
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      throw new Error('Failed to delete file from S3');
+    }
+  }
 }
