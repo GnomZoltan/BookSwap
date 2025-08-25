@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, UploadedFiles, UseInterceptors,  Delete, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import * as multer from 'multer';
 import { BookPhotosService } from './book-photos.service';
@@ -27,7 +27,6 @@ export class BookPhotosController {
     const uploadedPhotoUrls: string[] = [];
     for (const file of files) {
       const fileName = `${Date.now()}-${file.originalname}`;
-      console.log(fileName)
       
       // Call the bookPhotosService to handle the actual upload to S3 or another service
       await this.bookPhotosService.uploadPhoto(file.buffer, 'bookhub-storage', fileName);  // Pass buffer instead of file path
@@ -38,5 +37,22 @@ export class BookPhotosController {
 
     // Return the uploaded file URLs
     return uploadedPhotoUrls.map((url) => ({ fileUrl: url }));
+  }
+
+  @Delete(':fileName')
+  async deletePhoto(@Param('fileName') fileName: string) {
+    try {
+      // Виклик сервісу для видалення фото
+      await this.bookPhotosService.deletePhoto('bookhub-storage', fileName);
+
+      // Повертаємо успішну відповідь
+      return { message: `Фото ${fileName} успішно видалено.` };
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'Не вдалося видалити фото.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
