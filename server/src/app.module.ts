@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -13,7 +14,7 @@ import { BookGenreModule } from './book-genre/book-genre.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
-  imports: [DatabaseModule, UsersModule, AuthModule, BooksModule, ReviewsModule, ExchangeRequestsModule, GenresModule, BookPhotosModule, BookGenreModule, WishlistModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, UsersModule, AuthModule, BooksModule, ReviewsModule, ExchangeRequestsModule, GenresModule, BookPhotosModule, BookGenreModule, WishlistModule],
   controllers: [AppController],
   providers: [AppService],
 })
