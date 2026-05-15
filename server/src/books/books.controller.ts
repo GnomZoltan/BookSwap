@@ -5,12 +5,12 @@ import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
-@UseGuards(JwtGuard)
 @Controller('books')
 export class BooksController {
 
   constructor( private readonly booksService: BooksService ) {}
 
+  @UseGuards(JwtGuard)
   @Post()
   async create(@Body() createBookDto: CreateBookDto, @Req() req: any) {
 
@@ -25,7 +25,7 @@ export class BooksController {
     if (!decoded || !decoded.id) {
       throw new Error('Invalid token');
     }
-    
+
     createBookDto.userId = decoded.id;
 
     return this.booksService.create(createBookDto);;
@@ -36,6 +36,13 @@ export class BooksController {
     return this.booksService.findByOwnerId(id);
   }
 
+  @UseGuards(JwtGuard)
+  @Post('generate-description')
+  async generateDescription(@Body() body: { title: string; author: string }) {
+    const description = await this.booksService.generateDescription(body.title, body.author);
+    return { description };
+  }
+
   @Get('search')
   async search(@Req() req: any) {
     const query = req.query.query;
@@ -44,10 +51,11 @@ export class BooksController {
 
   @Get('by-genres')
   async getBooksByGenres(@Query('genres') genres: string) {
-    const genreList = genres.split(','); // Parse the genres from a query string
+    const genreList = genres.split(',');
     return this.booksService.findBooksByGenres(genreList);
   }
 
+  @UseGuards(JwtGuard)
   @Get()
   findAll() {
     return this.booksService.findAll();
@@ -63,11 +71,13 @@ export class BooksController {
     return this.booksService.findOne(id);
   }
 
+  @UseGuards(JwtGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
     return this.booksService.update(id, updateBookDto);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.booksService.remove(id);

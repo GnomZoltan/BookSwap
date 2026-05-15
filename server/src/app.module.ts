@@ -12,9 +12,10 @@ import { GenresModule } from './genres/genres.module';
 import { BookPhotosModule } from './book-photos/book-photos.module';
 import { BookGenreModule } from './book-genre/book-genre.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, UsersModule, AuthModule, BooksModule, ReviewsModule, ExchangeRequestsModule, GenresModule, BookPhotosModule, BookGenreModule, WishlistModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, UsersModule, AuthModule, BooksModule, ReviewsModule, ExchangeRequestsModule, GenresModule, BookPhotosModule, BookGenreModule, WishlistModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })

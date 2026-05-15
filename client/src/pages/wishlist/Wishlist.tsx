@@ -1,144 +1,41 @@
-// import React, { useEffect, useState } from 'react';
-// import './Wishlist.css';
-// import { Book } from '../../types/Book';
-// import { getUserWishlist } from '../../api/wishlistApi';
-// import BookCard from '../../components/bookCard/BookCard';
-
-// const Wishlist: React.FC = () => {
-//   const [books, setBooks] = useState<Book[]>([]);
-//   const [loading, setLoading] = useState(true);
-
-//   const fetchBooks = async () => {
-//     setLoading(true);
-//     try {
-//       const response = await getUserWishlist();
-//       const data = response.data;
-//       setBooks(data);
-//     } catch (error) {
-//       console.error('Failed to fetch books:', error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchBooks();
-//   }, []);
-
-//   return (
-//     <div className="home-container">
-//       <main className="books-container">
-//         {loading ? (
-//           <p>Loading books...</p>
-//         ) : books.length > 0 ? (
-//           books.map((book) => (
-//             <BookCard
-//               key={book.id}
-//               id={book.id}
-//               title={book.title}
-//               author={book.author}
-//               city={book.city}
-//               photoUrl={book.photos[0]?.photoUrl}
-//             />
-//           ))
-//         ) : (
-//           <p>No books available</p>
-//         )}
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default Wishlist;
-
-
 import React, { useEffect, useState } from 'react';
-import './Wishlist.css';
 import { Book } from '../../types/Book';
 import { getUserWishlist } from '../../api/wishlistApi';
-import BookCard from '../../components/bookCard/BookCard';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../content/AuthContext';
-import { getMyself } from '../../api/userApi';
-import { jwtDecode } from 'jwt-decode';
+import BookCard from '../../components/BookCard/BookCard';
+import './Wishlist.css';
 
 const Wishlist: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userPhoto, setUserPhoto] = useState('');
-  const navigate = useNavigate();
-  const { accessToken } = useAuth();
-
-  const loggedUserId = accessToken ? jwtDecode<{ id: string }>(accessToken).id : null;
-
-  const fetchBooks = async () => {
-    setLoading(true);
-    try {
-      const response = await getUserWishlist();
-      const data = response.data;
-      setBooks(data);
-    } catch (error) {
-      console.error('Failed to fetch books:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchPhoto = async () => {
-    try {
-      const response = await getMyself();
-      const data = response.data.photoUrl;
-      setUserPhoto(data);
-    } catch (error) {
-      console.error('Failed to fetch photo:', error);
-    }
-  };
 
   useEffect(() => {
+    const fetchBooks = async () => {
+      setLoading(true);
+      try { const r = await getUserWishlist(); setBooks(r.data); }
+      catch (error) { console.error('Failed to fetch books:', error); }
+      finally { setLoading(false); }
+    };
     fetchBooks();
-    fetchPhoto();
   }, []);
 
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <div className="logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/home')}>
-          BookSwap
+    <div className="wishlist">
+      <h1 className="wishlist__title">Список бажаного</h1>
+      {loading ? (
+        <div className="wishlist__loading"><p>Завантаження...</p></div>
+      ) : books.length > 0 ? (
+        <div className="wishlist__grid">
+          {books.map((book) => (
+            <BookCard key={book.id} id={book.id} title={book.title} author={book.author} city={book.city} photoUrl={book.photos[0]?.photoUrl} />
+          ))}
         </div>
-        <div className="header-actions">
-          {/* <button className="custom-button my-chats" onClick={() => navigate('/my-chats')}>
-            ✉
-          </button> */}
-          <button className="custom-button my-liked" onClick={() => navigate('/wishlist')}>
-            ♡
-          </button>
-          <button className="custom-button add-book" onClick={() => navigate('/add-book')}>
-            +
-          </button>
-          <button className="custom-button profile" onClick={() => navigate(`/profile/${loggedUserId}`)}>
-            <img src={userPhoto} alt="profile" />
-          </button>
+      ) : (
+        <div className="wishlist__empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <p>Список порожній</p>
+          <span>Додайте книги, натиснувши на серце</span>
         </div>
-      </header>
-
-      <main className="books-container">
-        {loading ? (
-          <p>Loading books...</p>
-        ) : books.length > 0 ? (
-          books.map((book) => (
-            <BookCard
-              key={book.id}
-              id={book.id}
-              title={book.title}
-              author={book.author}
-              city={book.city}
-              photoUrl={book.photos[0]?.photoUrl}
-            />
-          ))
-        ) : (
-          <p>No books available</p>
-        )}
-      </main>
+      )}
     </div>
   );
 };

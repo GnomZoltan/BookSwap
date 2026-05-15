@@ -54,6 +54,9 @@ model User {
   sentRequests ExchangeRequest[] @relation("SenderExchangeRequests")
   receivedRequests ExchangeRequest[] @relation("ReceiverExchangeRequests")
   savedBooks Wishlist[]
+  conversationsAsA Conversation[] @relation("ConversationUserA")
+  conversationsAsB Conversation[] @relation("ConversationUserB")
+  messagesSent Message[] @relation("MessageSender")
 }
 
 // model Credentials {
@@ -102,12 +105,15 @@ model BookForExchange {
   userId String 
   status BookStatus @default(AVAILABLE)
 
+  embedding Json?
+
   genre BookGenre[]
   photos BookPhoto[]
   sentRequests ExchangeRequest[] @relation("SenderBookRelation")
   receivedRequests ExchangeRequest[] @relation("ReceiverBookRelation")
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   savedBy Wishlist[]
+  conversations Conversation[]
 }
 
 model Genre {
@@ -149,5 +155,31 @@ model ExchangeRequest {
   
   senderBook BookForExchange @relation("SenderBookRelation", fields: [senderBookId], references: [id], onDelete: Cascade)
   receiverBook BookForExchange @relation("ReceiverBookRelation", fields: [receiverBookId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id        String   @id @default(uuid())
+  userAId   String
+  userBId   String
+  bookId    String
+  createdAt DateTime @default(now())
+
+  userA    User            @relation("ConversationUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB    User            @relation("ConversationUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  book     BookForExchange @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([userAId, userBId, bookId])
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String   @db.Text
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
 }
 

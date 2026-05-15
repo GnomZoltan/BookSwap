@@ -1,0 +1,206 @@
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-height));
+  max-width: var(--content-width);
+  margin: 0 auto;
+  background: var(--color-bg);
+}
+
+.chat__loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  color: var(--color-text-tertiary);
+}
+
+/* Header */
+.chat__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.chat__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.chat__back:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.chat__header-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.chat__header-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.chat__header-avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+}
+
+.chat__header-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.chat__header-book {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  line-height: 1.2;
+}
+
+/* Messages */
+.chat__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.chat__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+}
+
+/* Bubbles */
+.chat__bubble {
+  max-width: 70%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+
+.chat__bubble--sent {
+  align-self: flex-end;
+  background: var(--color-text);
+  color: var(--color-text-inverse);
+}
+
+.chat__bubble--received {
+  align-self: flex-start;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.chat__bubble-content {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.chat__bubble-time {
+  display: block;
+  font-size: 10px;
+  margin-top: var(--space-1);
+  opacity: 0.6;
+  text-align: right;
+}
+
+/* Input */
+.chat__input-area {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.chat__input {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  background: var(--color-bg);
+  transition: border-color var(--transition-fast);
+}
+
+.chat__input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.chat__input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.chat__send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.chat__send:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.chat__send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .chat__messages {
+    padding: var(--space-4);
+  }
+
+  .chat__input-area {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .chat__bubble {
+    max-width: 85%;
+  }
+
+  .chat__header {
+    padding: var(--space-3) var(--space-4);
+  }
+}
