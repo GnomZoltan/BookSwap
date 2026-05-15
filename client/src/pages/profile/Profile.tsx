@@ -107,108 +107,148 @@ const Profile: React.FC = () => {
 
     switch (activeSection) {
       case 'sent-requests':
-        return sectionContent.map((req) => (
-          <div key={req.id} className="profile__request-card">
-            <div className="profile__request-books">
-              <div className="profile__request-book">
-                <div className="profile__request-cover">
-                  {req.senderBookPhoto
-                    ? <img src={req.senderBookPhoto} alt={req.senderBookId} />
-                    : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
+        return (
+          <div className="profile__cards-grid">
+            {sectionContent.map((req) => (
+              <div key={req.id} className="profile__req-card">
+                <div className="profile__req-head">
+                  <span className={`profile__req-status profile__req-status--${req.status.toLowerCase()}`}>
+                    {req.status === 'PENDING' ? 'Очікує' : req.status === 'APPROVED' ? 'Підтверджено' : 'Відхилено'}
+                  </span>
+                  <span className="profile__req-date">{new Date(req.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 </div>
-                <span className="profile__request-book-label">Ваша книга</span>
-                <span className="profile__request-book-title">{req.senderBookId}</span>
-              </div>
-              <div className="profile__request-arrow">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M7 16L3 12l4-4"/><path d="M3 12h18"/><path d="M17 8l4 4-4 4"/>
-                </svg>
-              </div>
-              <div className="profile__request-book">
-                <div className="profile__request-cover">
-                  {req.receiverBookPhoto
-                    ? <img src={req.receiverBookPhoto} alt={req.receiverBookId} />
-                    : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
+                <p className="profile__req-party">до <strong>{req.receiverId}</strong></p>
+                <div className="profile__req-exchange">
+                  <div className="profile__req-book">
+                    <div className="profile__req-thumb">
+                      {req.senderBookPhoto
+                        ? <img src={req.senderBookPhoto} alt={req.senderBookId} />
+                        : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
+                    </div>
+                    <p className="profile__req-book-label">Ваша книга</p>
+                    <p className="profile__req-book-title">{req.senderBookId}</p>
+                  </div>
+                  <svg className="profile__req-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                  <div className="profile__req-book">
+                    <div className="profile__req-thumb">
+                      {req.receiverBookPhoto
+                        ? <img src={req.receiverBookPhoto} alt={req.receiverBookId} />
+                        : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
+                    </div>
+                    <p className="profile__req-book-label">Бажана книга</p>
+                    <p className="profile__req-book-title">{req.receiverBookId}</p>
+                  </div>
                 </div>
-                <span className="profile__request-book-label">Бажана книга</span>
-                <span className="profile__request-book-title">{req.receiverBookId}</span>
+                {((isOwnProfile && req.status === 'PENDING') || isAdmin) && (
+                  <div className="profile__req-actions">
+                    <button className="btn btn--danger btn--sm" onClick={() => handleDeleteRequest(req.id)}>Видалити</button>
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="profile__request-footer">
-              <div className="profile__request-meta">
-                <span className={`profile__status profile__status--${req.status.toLowerCase()}`}>{req.status}</span>
-                <span className="profile__item-date">{new Date(req.createdAt).toLocaleString()}</span>
-              </div>
-              {((isOwnProfile && req.status === 'PENDING') || isAdmin) && (
-                <button className="btn btn--danger btn--sm" onClick={() => handleDeleteRequest(req.id)}>Видалити запит</button>
-              )}
-            </div>
+            ))}
           </div>
-        ));
+        );
       case 'received-requests':
-        return sectionContent.map((req) => (
-          <div key={req.id} className="profile__request-card">
-            <div className="profile__request-books">
-              <div className="profile__request-book">
-                <div className="profile__request-cover">
-                  {req.senderBookPhoto
-                    ? <img src={req.senderBookPhoto} alt={req.senderBookId} />
-                    : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
+        return (
+          <div className="profile__cards-grid">
+            {sectionContent.map((req) => (
+              <div key={req.id} className="profile__req-card">
+                <div className="profile__req-head">
+                  <span className={`profile__req-status profile__req-status--${req.status.toLowerCase()}`}>
+                    {req.status === 'PENDING' ? 'Очікує' : req.status === 'APPROVED' ? 'Підтверджено' : 'Відхилено'}
+                  </span>
+                  <span className="profile__req-date">{new Date(req.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 </div>
-                <span className="profile__request-book-label">Пропонують</span>
-                <span className="profile__request-book-title">{req.senderBookId}</span>
-              </div>
-              <div className="profile__request-arrow">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M7 16L3 12l4-4"/><path d="M3 12h18"/><path d="M17 8l4 4-4 4"/>
-                </svg>
-              </div>
-              <div className="profile__request-book">
-                <div className="profile__request-cover">
-                  {req.receiverBookPhoto
-                    ? <img src={req.receiverBookPhoto} alt={req.receiverBookId} />
-                    : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
+                <p className="profile__req-party">від <strong>{req.senderId}</strong></p>
+                <div className="profile__req-exchange">
+                  <div className="profile__req-book">
+                    <div className="profile__req-thumb">
+                      {req.senderBookPhoto
+                        ? <img src={req.senderBookPhoto} alt={req.senderBookId} />
+                        : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
+                    </div>
+                    <p className="profile__req-book-label">Пропонують</p>
+                    <p className="profile__req-book-title">{req.senderBookId}</p>
+                  </div>
+                  <svg className="profile__req-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                  <div className="profile__req-book">
+                    <div className="profile__req-thumb">
+                      {req.receiverBookPhoto
+                        ? <img src={req.receiverBookPhoto} alt={req.receiverBookId} />
+                        : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
+                    </div>
+                    <p className="profile__req-book-label">Ваша книга</p>
+                    <p className="profile__req-book-title">{req.receiverBookId}</p>
+                  </div>
                 </div>
-                <span className="profile__request-book-label">Ваша книга</span>
-                <span className="profile__request-book-title">{req.receiverBookId}</span>
+                {isOwnProfile && req.status === 'PENDING' && (
+                  <div className="profile__req-actions">
+                    <button className="btn btn--primary btn--sm" onClick={() => handleApproveRequest(req.id)}>Прийняти</button>
+                    <button className="btn btn--danger btn--sm" onClick={() => handleDeclineRequest(req.id)}>Відхилити</button>
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="profile__request-footer">
-              <div className="profile__request-meta">
-                <span className={`profile__status profile__status--${req.status.toLowerCase()}`}>{req.status}</span>
-                <span className="profile__item-date">{new Date(req.createdAt).toLocaleString()}</span>
-              </div>
-              {isOwnProfile && req.status === 'PENDING' && (
-                <div className="profile__item-actions">
-                  <button className="btn btn--primary btn--sm" onClick={() => handleApproveRequest(req.id)}>Прийняти</button>
-                  <button className="btn btn--danger btn--sm" onClick={() => handleDeclineRequest(req.id)}>Відхилити</button>
-                </div>
-              )}
-            </div>
+            ))}
           </div>
-        ));
+        );
       case 'sent-reviews':
-        return sectionContent.map((rev) => (
-          <div key={rev.id} className="profile__item">
-            <div className="profile__item-content">
-              <p><span className="profile__item-label">Рейтинг:</span> {rev.rating}</p>
-              <p><span className="profile__item-label">Коментар:</span> {rev.comment}</p>
-              <p className="profile__item-date">{new Date(rev.createdAt).toLocaleString()}</p>
-              {(isOwnProfile || isAdmin) && <button className="btn btn--danger btn--sm" onClick={() => handleDeleteReview(rev.id)}>Видалити</button>}
-            </div>
+        return (
+          <div className="profile__cards-grid">
+            {sectionContent.map((rev) => (
+              <div key={rev.id} className="profile__review-card">
+                <div className="profile__review-head">
+                  <div className="profile__review-stars">
+                    {[1,2,3,4,5].map((i) => (
+                      <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill={i <= Math.round(rev.rating) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    ))}
+                    <span className="profile__review-score">{rev.rating}</span>
+                  </div>
+                  <span className="profile__req-date">{new Date(rev.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </div>
+                {rev.reviewedUserId && <p className="profile__review-recipient">для {rev.reviewedUserId}</p>}
+                <p className="profile__review-comment">«{rev.comment}»</p>
+                {(isOwnProfile || isAdmin) && (
+                  <div className="profile__req-actions">
+                    <button className="btn btn--danger btn--sm" onClick={() => handleDeleteReview(rev.id)}>Видалити</button>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        ));
+        );
       case 'received-reviews':
-        return sectionContent.map((rev) => (
-          <div key={rev.id} className="profile__item">
-            <div className="profile__item-content">
-              <p><span className="profile__item-label">Рейтинг:</span> {rev.rating}</p>
-              <p><span className="profile__item-label">Коментар:</span> {rev.comment}</p>
-              <p className="profile__item-date">{new Date(rev.createdAt).toLocaleString()}</p>
-              {isAdmin && <button className="btn btn--danger btn--sm" onClick={() => handleDeleteReview(rev.id)}>Видалити</button>}
-            </div>
+        return (
+          <div className="profile__cards-grid">
+            {sectionContent.map((rev) => (
+              <div key={rev.id} className="profile__review-card">
+                <div className="profile__review-head">
+                  <div className="profile__review-stars">
+                    {[1,2,3,4,5].map((i) => (
+                      <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill={i <= Math.round(rev.rating) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    ))}
+                    <span className="profile__review-score">{rev.rating}</span>
+                  </div>
+                  <span className="profile__req-date">{new Date(rev.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </div>
+                {rev.reviewerId && <p className="profile__review-recipient">від {rev.reviewerId}</p>}
+                <p className="profile__review-comment">«{rev.comment}»</p>
+                {isAdmin && (
+                  <div className="profile__req-actions">
+                    <button className="btn btn--danger btn--sm" onClick={() => handleDeleteReview(rev.id)}>Видалити</button>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        ));
+        );
       default: return <p className="profile__empty">Оберіть розділ.</p>;
     }
   };

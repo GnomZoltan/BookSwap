@@ -12,8 +12,8 @@ export class AuthService {
 
   constructor(private readonly databaseService: DatabaseService, private readonly jwtService: JwtService) {}
 
-  private generateRefreshToken(userId: string): string {
-    return jwt.sign({ id: userId }, process.env.JWT_REFRESH, { expiresIn: '7d' });
+  private generateRefreshToken(userId: string, role: string): string {
+    return jwt.sign({ id: userId, role }, process.env.JWT_REFRESH, { expiresIn: '7d' });
   } 
 
   // === Local Strategy Guard Login
@@ -52,10 +52,12 @@ export class AuthService {
       return res.status(400).send({ message: "Bad credentials" });
 
     const accessToken = this.jwtService.sign({ id: user.id, role: user.role });
-    const refreshToken = this.generateRefreshToken(user.id);
+    const refreshToken = this.generateRefreshToken(user.id, user.role);
 
     res.cookie('jwt-refresh', refreshToken, {
       httpOnly: true,
+      sameSite: 'none',
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
@@ -64,7 +66,7 @@ export class AuthService {
 
   async register(createUserDto: Prisma.UserCreateInput, @Res() res: Response) {
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(createUserDto.password, salt); 
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
 
     const user = await this.databaseService.user.create({
       data: {
@@ -76,10 +78,12 @@ export class AuthService {
     });
 
     const accessToken = this.jwtService.sign({ id: user.id, role: user.role });
-    const refreshToken = this.generateRefreshToken(user.id);
+    const refreshToken = this.generateRefreshToken(user.id, user.role);
 
     res.cookie('jwt-refresh', refreshToken, {
       httpOnly: true,
+      sameSite: 'none',
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
@@ -94,8 +98,8 @@ export class AuthService {
   
       if (!claims) res.status(401).send({ message: "unaunthenticated" });
   
-      const accessToken = this.jwtService.sign({ id: claims.id });
-  
+      const accessToken = this.jwtService.sign({ id: claims.id, role: claims.role });
+
       res.send(accessToken);
     } catch (err) {
       return res.status(401).send({ message: err.message });

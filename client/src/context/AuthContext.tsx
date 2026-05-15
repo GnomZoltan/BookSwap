@@ -33,7 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const fetchMe = async () => {
       try {
         const response = await refreshToken();
-        setAccessToken(response.data.access_token);
+        setAccessToken(response.data);
       } catch {
         setAccessToken(null);
       } finally {
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         ) {
           try {
             const response = await refreshToken();
-            const access_token = response.data.access_token;
+            const access_token = response.data;
             setAccessToken(access_token);
 
             originalRequest.headers.Authorization = `Bearer ${access_token}`;
