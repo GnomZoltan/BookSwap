@@ -1,19 +1,20 @@
-import { Controller, Get, Body, Patch, Param, Delete, Put, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Prisma } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import * as jwt from 'jsonwebtoken';
 
-@UseGuards(JwtGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(JwtGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();
   }
 
+  @UseGuards(JwtGuard)
   @Get('myself')
   async findMe(@Req() req: any) {
     const token = req.headers.authorization?.split(' ')[1];
@@ -47,6 +48,7 @@ export class UsersController {
     return clearUser;
   }
 
+  @UseGuards(JwtGuard)
   @Patch()
   // Update only himself
   update(@Body() updateUserDto: Prisma.UserUpdateInput, @Req() req: any) {
@@ -65,6 +67,7 @@ export class UsersController {
     return this.usersService.update(decoded.id, updateUserDto);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   // Admin
   remove(@Param('id') id: string) {
