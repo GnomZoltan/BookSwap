@@ -78,9 +78,17 @@ export function deleteBook(id: string) {
 export function updateBook(id:string, updateBookDto: UpdateBookDto) {
     return axiosInstance.patch(
         `${BOOK_CONTROLLER}/${id}`,
-        updateBookDto, 
+        updateBookDto,
         {
             withCredentials: true,
         }
+    );
+}
+
+export function generateBookDescription(title: string, author: string) {
+    return axiosInstance.post(
+        `${BOOK_CONTROLLER}/generate-description`,
+        { title, author },
+        { withCredentials: true },
     );
 }

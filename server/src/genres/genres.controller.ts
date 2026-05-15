@@ -3,11 +3,11 @@ import { GenresService } from './genres.service';
 import { Prisma } from '@prisma/client';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 
-@UseGuards(JwtGuard)
 @Controller('genres')
 export class GenresController {
   constructor(private readonly genresService: GenresService) {}
 
+  @UseGuards(JwtGuard)
   @Post()
   // Admin
   create(@Body() createGenreDto: Prisma.GenreCreateInput) {
@@ -24,6 +24,7 @@ export class GenresController {
     return this.genresService.findOne(name);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   // Admin
   remove(@Param('id') id: string) {
