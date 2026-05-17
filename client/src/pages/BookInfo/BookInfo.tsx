@@ -148,7 +148,10 @@ const BookInfo: React.FC = () => {
 
         {/* Details */}
         <div className="book-info__details">
-          <h1 className="book-info__title">{book.title}</h1>
+          <div className="book-info__title-row">
+            <h1 className="book-info__title">{book.title}</h1>
+            {book.forFree && <span className="book-info__free-badge">Безкоштовно</span>}
+          </div>
 
           <dl className="book-info__meta">
             <div className="book-info__meta-row">
