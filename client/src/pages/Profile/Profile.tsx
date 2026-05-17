@@ -275,13 +275,13 @@ const Profile: React.FC = () => {
         </div>
         <div className="profile__tabs">
           <button className={`profile__tab ${activeSection === 'books' ? 'profile__tab--active' : ''}`} onClick={() => setActiveSection('books')}>{isOwnProfile ? 'Мої книги' : 'Книги'}</button>
-          {isAuthenticated && !isOwnProfile && !isAdmin && <button className={`profile__tab ${activeSection === 'create-review' ? 'profile__tab--active' : ''}`} onClick={() => handleSetActiveSection('create-review')}>Відгук</button>}
-          {!isAuthenticated && !isOwnProfile && <button className={`profile__tab ${activeSection === 'login-cta' ? 'profile__tab--active' : ''}`} onClick={() => setActiveSection('login-cta')}>Відгук</button>}
+          <button className={`profile__tab ${activeSection === 'received-reviews' ? 'profile__tab--active' : ''}`} onClick={() => setActiveSection('received-reviews')}>Відгуки</button>
+          {isAuthenticated && !isOwnProfile && !isAdmin && <button className={`profile__tab ${activeSection === 'create-review' ? 'profile__tab--active' : ''}`} onClick={() => handleSetActiveSection('create-review')}>Залишити відгук</button>}
+          {!isAuthenticated && !isOwnProfile && <button className={`profile__tab ${activeSection === 'login-cta' ? 'profile__tab--active' : ''}`} onClick={() => setActiveSection('login-cta')}>Залишити відгук</button>}
           {(isOwnProfile || isAdmin) && (<>
             <button className={`profile__tab ${activeSection === 'sent-requests' ? 'profile__tab--active' : ''}`} onClick={() => setActiveSection('sent-requests')}>Надіслані запити</button>
             <button className={`profile__tab ${activeSection === 'received-requests' ? 'profile__tab--active' : ''}`} onClick={() => setActiveSection('received-requests')}>Отримані запити</button>
             <button className={`profile__tab ${activeSection === 'sent-reviews' ? 'profile__tab--active' : ''}`} onClick={() => setActiveSection('sent-reviews')}>Надіслані відгуки</button>
-            <button className={`profile__tab ${activeSection === 'received-reviews' ? 'profile__tab--active' : ''}`} onClick={() => setActiveSection('received-reviews')}>Отримані відгуки</button>
           </>)}
         </div>
         <div className="profile__content">
