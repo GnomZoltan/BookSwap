@@ -54,6 +54,7 @@ const Welcome: React.FC<WelcomeProps> = ({ mode }) => {
       <div className="welcome__form-section">
         <div className="welcome__form-card">
           <h2 className="welcome__form-title">{isLogin ? 'Увійти' : 'Зареєструватись'}</h2>
+          <p className="welcome__form-sub">{isLogin ? 'Раді бачити вас знову' : 'Створіть акаунт безкоштовно'}</p>
           {error && <p className="welcome__error">{error}</p>}
           <form onSubmit={handleSubmit} className="welcome__form">
             {!isLogin && (

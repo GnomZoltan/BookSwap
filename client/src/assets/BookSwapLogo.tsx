@@ -1,29 +1,3 @@
-// export const BookSwapLogo = ({ className = "w-64 text-black dark:text-white" }) => (
-//   <svg
-//     xmlns="http://www.w3.org/2000/svg"
-//     viewBox="0 0 450 100"
-//     className={className}
-//     fill="currentColor"
-//   >
-//     <g transform="translate(10, 15)">
-//       {/* Left side: Book spine and cover */}
-//       <path d="M 15 10 h 15 v 60 h -15 a 8 8 0 0 1 -8 -8 v -44 a 8 8 0 0 1 8 -8 z" />
-//       {/* Right side: Pages sweeping into an upward swap arrow */}
-//       <path d="M 35 70 h 20 a 20 20 0 0 0 20 -20 v -10 h 10 L 60 10 L 35 40 h 15 v 10 h -15 v 20 z" />
-//     </g>
-//     <text
-//       x="110"
-//       y="68"
-//       fontFamily="-apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, sans-serif"
-//       fontSize="46"
-//       fontWeight="800"
-//       letterSpacing="1.5"
-//     >
-//       BOOKSWAP
-//     </text>
-//   </svg>
-// );
-
 export const BookSwapLogo = ({ className = "w-72 text-black dark:text-white" }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -31,8 +5,7 @@ export const BookSwapLogo = ({ className = "w-72 text-black dark:text-white" }) 
     className={className}
     fill="none"
   >
-    {/* Icon Path */}
-    <path 
+    <path
       d="
         M 30 40
         C 30 25, 40 20, 50 20
@@ -58,9 +31,8 @@ export const BookSwapLogo = ({ className = "w-72 text-black dark:text-white" }) 
       " 
       fill="currentColor"
     />
-    
-    {/* Typography */}
-    <text 
+
+    <text
       x="180" 
       y="125" 
       fontFamily="'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif" 

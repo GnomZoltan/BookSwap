@@ -10,13 +10,6 @@ import { LoginDto } from './dto/login.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // === LocalStrategyLogin ===
-  // @Post('login')
-  // @UseGuards(LocalGuard)
-  // async login(@Req() req: Request) {
-  //   return req.user;
-  // }
-
   @Post('login')
   login(@Body() loginDto: LoginDto, @Res() res: Response) {
     return this.authService.login(loginDto, res);
@@ -33,7 +26,6 @@ export class AuthController {
   }
 
   @Delete()
-  //@UseGuards(JwtGuard)
   logout(@Res() res: Response) {
     return this.authService.logout(res);
   }

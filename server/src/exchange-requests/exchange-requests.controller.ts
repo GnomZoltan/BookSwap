@@ -33,13 +33,11 @@ export class ExchangeRequestsController {
   }
 
   @Patch('decline/:id')
-  // receiver
   declineRequest(@Param('id') id: string) {
     return this.exchangeRequestsService.declineById(id);
   }
 
   @Patch('approve/:id')
-  // receiver
   async approveRequest(@Param('id') requestId: string) {
     this.exchangeRequestsService.approveById(requestId)
 
@@ -66,19 +64,16 @@ export class ExchangeRequestsController {
   }
 
   @Get()
-  // only yourself, other Admin
   findAll() {
     return this.exchangeRequestsService.findAll();
   }
 
   @Get(':id')
-  // // only yourself
   findOne(@Param('id') id: string) {
     return this.exchangeRequestsService.findOne(id);
   }
 
   @Delete(':id')
-  // only yourself, other Admin
   remove(@Param('id') id: string) {
     return this.exchangeRequestsService.remove(id);
   }

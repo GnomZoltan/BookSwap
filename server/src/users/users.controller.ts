@@ -50,7 +50,6 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Patch()
-  // Update only himself
   update(@Body() updateUserDto: Prisma.UserUpdateInput, @Req() req: any) {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -69,7 +68,6 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  // Admin
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }

@@ -11,7 +11,6 @@ export function getAllGenres() {
     );
 }
 
-//Admin
 export function addGenre(name: string) {
     return axiosInstance.post(
         GENRE_CONTROLLER, 

@@ -8,11 +8,11 @@ import './AddBook.css';
 const AddBook: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [formData, setFormData] = useState({
-    title: '', author: '', language: '', city: '', condition: 1, forFree: false, description: '',
+    title: '', author: '', language: '', city: '', condition: 5, forFree: false, description: '',
     genreNames: [] as string[], bookPhotos: [] as string[],
   });
   const [genres, setGenres] = useState<{ id: string; name: string }[]>([]);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<(File | string)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [generatingDescription, setGeneratingDescription] = useState(false);
@@ -42,11 +42,10 @@ const AddBook: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, index?: number) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const file = e.target.files[0];
-      if (typeof index === 'number') { setSelectedFiles((prev) => { const u = [...prev]; u[index] = file; return u; }); }
-      else { setSelectedFiles((prev) => [...prev, file]); }
+      setSelectedFiles((prev) => [...prev, file]);
     }
   };
 
@@ -55,10 +54,8 @@ const AddBook: React.FC = () => {
     try {
       if (typeof fileToRemove === 'string') await deletePhoto(fileToRemove);
       setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    } catch (err) { console.error('Failed to remove photo:', err); setError('Failed to remove photo.'); }
+    } catch { setError('Failed to remove photo.'); }
   };
-
-  const toggleForFree = () => setFormData((prev) => ({ ...prev, forFree: !prev.forFree }));
 
   const toggleGenre = (name: string) => {
     setFormData((prev) => ({
@@ -72,11 +69,8 @@ const AddBook: React.FC = () => {
     try {
       const r = await generateBookDescription(formData.title, formData.author);
       setFormData((prev) => ({ ...prev, description: r.data.description }));
-    } catch {
-      setError('Failed to generate description.');
-    } finally {
-      setGeneratingDescription(false);
-    }
+    } catch { setError('Failed to generate description.'); }
+    finally { setGeneratingDescription(false); }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,97 +94,141 @@ const AddBook: React.FC = () => {
 
   return (
     <div className="add-book">
-      <div className="add-book__card">
-        <h1 className="add-book__title">{id ? 'Редагувати книгу' : 'Додати нову книгу'}</h1>
-        <form onSubmit={handleSubmit} className="add-book__form">
-          <div className="form-field">
-            <label htmlFor="title" className="form-field__label">Назва</label>
-            <input type="text" id="title" name="title" className="form-field__input" value={formData.title} onChange={handleInputChange} placeholder="Назва книги" />
-          </div>
-          <div className="form-field">
-            <label htmlFor="author" className="form-field__label">Автор</label>
-            <input type="text" id="author" name="author" className="form-field__input" value={formData.author} onChange={handleInputChange} placeholder="Ім'я автора" />
-          </div>
-          <div className="add-book__row">
+      <h1 className="add-book__title">{id ? 'Редагувати книгу' : 'Додати нову книгу'}</h1>
+      <form onSubmit={handleSubmit} className="add-book__form">
+
+        {/* Basic info */}
+        <div className="add-book__section">
+          <p className="add-book__section-label">Основна інформація</p>
+          <div className="add-book__section-fields">
             <div className="form-field">
-              <label htmlFor="language" className="form-field__label">Мова</label>
-              <input type="text" id="language" name="language" className="form-field__input" value={formData.language} onChange={handleInputChange} placeholder="Мова" />
+              <label htmlFor="title" className="form-field__label">Назва книги</label>
+              <input type="text" id="title" name="title" className="form-field__input" value={formData.title} onChange={handleInputChange} placeholder="Введіть назву" required />
             </div>
             <div className="form-field">
-              <label htmlFor="city" className="form-field__label">Місто</label>
-              <input type="text" id="city" name="city" className="form-field__input" value={formData.city} onChange={handleInputChange} placeholder="Місто" />
+              <label htmlFor="author" className="form-field__label">Автор</label>
+              <input type="text" id="author" name="author" className="form-field__input" value={formData.author} onChange={handleInputChange} placeholder="Ім'я автора" required />
             </div>
           </div>
-          <div className="add-book__row">
-            <div className="form-field">
-              <label htmlFor="condition" className="form-field__label">Стан (1-10)</label>
-              <input type="number" id="condition" name="condition" className="form-field__input" value={formData.condition} onChange={(e) => setFormData((prev) => ({ ...prev, condition: parseInt(e.target.value, 10) || 0 }))} min="1" max="10" />
+        </div>
+
+        {/* Details */}
+        <div className="add-book__section">
+          <p className="add-book__section-label">Деталі</p>
+          <div className="add-book__section-fields">
+            <div className="add-book__row">
+              <div className="form-field">
+                <label htmlFor="language" className="form-field__label">Мова</label>
+                <input type="text" id="language" name="language" className="form-field__input" value={formData.language} onChange={handleInputChange} placeholder="Українська" />
+              </div>
+              <div className="form-field">
+                <label htmlFor="city" className="form-field__label">Місто</label>
+                <input type="text" id="city" name="city" className="form-field__input" value={formData.city} onChange={handleInputChange} placeholder="Київ" />
+              </div>
             </div>
-            <div className="form-field">
-              <label className="form-field__label">Безкоштовно</label>
-              <button type="button" onClick={toggleForFree} className={`add-book__toggle ${formData.forFree ? 'add-book__toggle--active' : ''}`}>
-                {formData.forFree ? 'Так' : 'Ні'}
-              </button>
-            </div>
-          </div>
-          <div className="form-field">
-            <div className="add-book__description-header">
-              <label htmlFor="description" className="form-field__label">Опис</label>
-              <button
-                type="button"
-                className="add-book__generate-btn"
-                onClick={handleGenerateDescription}
-                disabled={generatingDescription || (!formData.title && !formData.author)}
-              >
-                {generatingDescription ? (
-                  <>
-                    <svg className="add-book__spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" /></svg>
-                    Генерація...
-                  </>
-                ) : (
-                  <>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 15l.75 2.25L22 18l-2.25.75L19 21l-.75-2.25L16 18l2.25-.75z"/></svg>
-                    Згенерувати
-                  </>
-                )}
-              </button>
-            </div>
-            <textarea id="description" name="description" className="form-field__textarea" value={formData.description} onChange={handleInputChange} placeholder="Опис книги" rows={4} />
-          </div>
-          <div className="form-field">
-            <label className="form-field__label">Фото книги</label>
-            {selectedFiles.length > 0 && (
-              <div className="add-book__photos">
-                {selectedFiles.map((file, index) => (
-                  <div key={index} className="add-book__photo-item">
-                    <img src={typeof file === 'string' ? file : URL.createObjectURL(file)} alt={`Photo ${index}`} />
-                    <button type="button" className="add-book__photo-remove" onClick={() => handleRemovePhoto(index)}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                  </div>
+            <div className="add-book__condition-row">
+              <label className="form-field__label">Стан книги — {formData.condition}/10</label>
+              <div className="add-book__condition-dots">
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`add-book__condition-dot ${formData.condition >= n ? 'add-book__condition-dot--active' : ''}`}
+                    onClick={() => setFormData((prev) => ({ ...prev, condition: n }))}
+                  >
+                    {n}
+                  </button>
                 ))}
               </div>
-            )}
-            <label className="add-book__upload">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              Додати фото
-              <input type="file" multiple onChange={handleFileChange} style={{ display: 'none' }} accept="image/*" />
-            </label>
-          </div>
-          <div className="form-field">
-            <label className="form-field__label">Жанри</label>
-            <div className="add-book__genres">
-              {genres.map((genre) => (
-                <label key={genre.id} className={`add-book__genre-chip ${formData.genreNames.includes(genre.name) ? 'add-book__genre-chip--active' : ''}`}>
-                  <input type="checkbox" checked={formData.genreNames.includes(genre.name)} onChange={() => toggleGenre(genre.name)} style={{ display: 'none' }} />
-                  {genre.name}
-                </label>
-              ))}
+            </div>
+            <div className={`add-book__free-row ${formData.forFree ? 'add-book__free-row--active' : ''}`}>
+              <div className="add-book__free-info">
+                <span className="add-book__free-title">Безкоштовна роздача</span>
+                <span className="add-book__free-sub">Книгу можна отримати без обміну</span>
+              </div>
+              <label className="add-book__toggle">
+                <input type="checkbox" checked={formData.forFree} onChange={() => setFormData((prev) => ({ ...prev, forFree: !prev.forFree }))} />
+                <span className="add-book__toggle-slider" />
+              </label>
             </div>
           </div>
-          <button type="submit" className="btn btn--primary add-book__submit">{id ? 'Зберегти зміни' : 'Додати книгу'}</button>
-        </form>
-      </div>
+        </div>
+
+        {/* Description */}
+        <div className="add-book__section">
+          <div className="add-book__description-header">
+            <p className="add-book__section-label" style={{ marginBottom: 0 }}>Опис</p>
+            <button
+              type="button"
+              className="add-book__generate-btn"
+              onClick={handleGenerateDescription}
+              disabled={generatingDescription || (!formData.title && !formData.author)}
+            >
+              {generatingDescription ? (
+                <>
+                  <svg className="add-book__spinner" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" strokeOpacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                  Генерація...
+                </>
+              ) : (
+                <>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>
+                  Згенерувати AI
+                </>
+              )}
+            </button>
+          </div>
+          <textarea
+            id="description"
+            name="description"
+            className="form-field__textarea"
+            style={{ marginTop: 'var(--space-4)' }}
+            value={formData.description}
+            onChange={handleInputChange}
+            placeholder="Короткий опис книги..."
+            rows={4}
+          />
+        </div>
+
+        {/* Photos */}
+        <div className="add-book__section">
+          <p className="add-book__section-label">Фото</p>
+          {selectedFiles.length > 0 && (
+            <div className="add-book__photos">
+              {selectedFiles.map((file, index) => (
+                <div key={index} className="add-book__photo-item">
+                  <img src={typeof file === 'string' ? file : URL.createObjectURL(file)} alt={`Photo ${index}`} />
+                  <button type="button" className="add-book__photo-remove" onClick={() => handleRemovePhoto(index)}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <label className="add-book__upload">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span className="add-book__upload-label">Додати фото</span>
+            <span className="add-book__upload-sub">PNG, JPG до 10 МБ</span>
+            <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept="image/*" />
+          </label>
+        </div>
+
+        {/* Genres */}
+        <div className="add-book__section">
+          <p className="add-book__section-label">Жанри</p>
+          <div className="add-book__genres">
+            {genres.map((genre) => (
+              <label key={genre.id} className={`add-book__genre-chip ${formData.genreNames.includes(genre.name) ? 'add-book__genre-chip--active' : ''}`}>
+                <input type="checkbox" checked={formData.genreNames.includes(genre.name)} onChange={() => toggleGenre(genre.name)} style={{ display: 'none' }} />
+                {genre.name}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <button type="submit" className="add-book__submit">
+          {id ? 'Зберегти зміни' : 'Опублікувати книгу'}
+        </button>
+      </form>
     </div>
   );
 };

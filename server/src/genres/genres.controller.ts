@@ -9,7 +9,6 @@ export class GenresController {
 
   @UseGuards(JwtGuard)
   @Post()
-  // Admin
   create(@Body() createGenreDto: Prisma.GenreCreateInput) {
     return this.genresService.create(createGenreDto);
   }
@@ -26,7 +25,6 @@ export class GenresController {
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  // Admin
   remove(@Param('id') id: string) {
     return this.genresService.remove(id);
   }

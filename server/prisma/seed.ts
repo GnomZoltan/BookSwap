@@ -18,13 +18,11 @@ const genres = [
 ];
 
 async function main() {
-  // Delete old English genres that are no longer needed
   const existingGenres = await prisma.genre.findMany();
   const newGenreSet = new Set(genres);
 
   for (const existing of existingGenres) {
     if (!newGenreSet.has(existing.name)) {
-      // Only delete if no books are using this genre
       const usageCount = await prisma.bookGenre.count({
         where: { genreId: existing.id },
       });
@@ -37,7 +35,6 @@ async function main() {
     }
   }
 
-  // Upsert all Ukrainian genres
   for (const name of genres) {
     await prisma.genre.upsert({
       where: { name },

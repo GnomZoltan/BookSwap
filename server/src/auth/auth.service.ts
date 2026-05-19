@@ -16,26 +16,6 @@ export class AuthService {
     return jwt.sign({ id: userId, role }, process.env.JWT_REFRESH, { expiresIn: '7d' });
   } 
 
-  // === Local Strategy Guard Login
-  // async login({email, password}: LoginDto) {
-
-  //   const user = await this.databaseService.user.findUnique({
-  //     where: {
-  //       email,
-  //     }
-  //   })
-
-  //   if (!user) return null;
-
-  //   if (await bcrypt.compare(password, user.password)){
-  //     const accessToken = this.jwtService.sign({ id: user.id });
-  //     const refreshToken = this.generateRefreshToken(user.id);
-  //     return { accessToken, refreshToken };
-  //   }
-      
-  //   return null;
-  // }
-
   async login(loginDto: LoginDto, @Res() res: Response) {
     const email = loginDto.email;
     const password = loginDto.password;

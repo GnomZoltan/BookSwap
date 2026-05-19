@@ -50,14 +50,12 @@ export class ReviewsController {
   }
 
   @UseGuards(JwtGuard)
-  // yourself
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateReviewDto: Prisma.ReviewUpdateInput) {
     return this.reviewsService.update(id, updateReviewDto);
   }
 
   @UseGuards(JwtGuard)
-  // only your reviews, other Admin
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.reviewsService.remove(id);
