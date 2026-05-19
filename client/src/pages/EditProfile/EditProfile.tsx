@@ -51,9 +51,10 @@ const EditProfile: React.FC = () => {
 
   return (
     <div className="edit-profile">
-      <div className="edit-profile__card">
-        <h1 className="edit-profile__title">Редагувати профіль</h1>
-        <form onSubmit={handleSubmit} className="edit-profile__form">
+      <h1 className="edit-profile__title">Редагувати профіль</h1>
+      <form onSubmit={handleSubmit} className="edit-profile__form">
+        <div className="edit-profile__card">
+          <p className="edit-profile__section-label">Фото профілю</p>
           <div className="edit-profile__avatar-section">
             {(userData.photoUrl || selectedFile) ? (
               <div className="edit-profile__avatar-preview">
@@ -62,18 +63,21 @@ const EditProfile: React.FC = () => {
               </div>
             ) : (
               <label className="edit-profile__avatar-upload">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Додати фото
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Завантажити фото
                 <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
               </label>
             )}
           </div>
+        </div>
+        <div className="edit-profile__card">
+          <p className="edit-profile__section-label">Особисті дані</p>
           <div className="form-field"><label htmlFor="username" className="form-field__label">Ім'я користувача</label><input type="text" id="username" name="username" className="form-field__input" value={userData.username} onChange={handleChange} placeholder="Введіть ваше ім'я" /></div>
-          <div className="form-field"><label htmlFor="email" className="form-field__label">Email</label><input type="email" id="email" name="email" className="form-field__input" value={userData.email} onChange={handleChange} placeholder="Введіть ваш email" /></div>
-          <div className="form-field"><label htmlFor="description" className="form-field__label">Опис</label><textarea id="description" name="description" className="form-field__textarea" value={userData.description} onChange={handleChange} placeholder="Розкажіть про себе" rows={4} /></div>
-          <button type="submit" className="btn btn--primary edit-profile__submit">Зберегти зміни</button>
-        </form>
-      </div>
+          <div className="form-field" style={{ marginTop: 'var(--space-4)' }}><label htmlFor="email" className="form-field__label">Email</label><input type="email" id="email" name="email" className="form-field__input" value={userData.email} onChange={handleChange} placeholder="Введіть ваш email" /></div>
+          <div className="form-field" style={{ marginTop: 'var(--space-4)' }}><label htmlFor="description" className="form-field__label">Опис</label><textarea id="description" name="description" className="form-field__textarea" value={userData.description} onChange={handleChange} placeholder="Розкажіть про себе..." rows={4} /></div>
+        </div>
+        <button type="submit" className="edit-profile__submit">Зберегти зміни</button>
+      </form>
     </div>
   );
 };

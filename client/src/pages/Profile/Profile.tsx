@@ -261,7 +261,19 @@ const Profile: React.FC = () => {
             <img src={user.photoUrl} alt={user.username} className="profile__avatar" />
             <div className="profile__info">
               <h1 className="profile__name">{user.username}</h1>
-              <div className="profile__meta"><span>Рейтинг: {user.avgRating.toFixed(1)}</span><span>Приєднався: {new Date(user.createdAt).toLocaleDateString()}</span></div>
+              <div className="profile__meta">
+                <div className="profile__rating">
+                  <div className="profile__rating-stars">
+                    {[1,2,3,4,5].map((i) => (
+                      <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill={i <= Math.round(user.avgRating) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="profile__rating-value">{user.avgRating.toFixed(1)}</span>
+                </div>
+                <span className="profile__joined">Приєднався: {new Date(user.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              </div>
               {user.description && <p className="profile__description">{user.description}</p>}
             </div>
             {(isOwnProfile || isAdmin) && (
