@@ -68,7 +68,12 @@ export class BooksService implements OnModuleInit {
 
   private async backfillEmbeddings() {
     const books = await this.databaseService.bookForExchange.findMany({
-      where: { embedding: { equals: Prisma.JsonNull } },
+      where: {
+        OR: [
+          { embedding: { equals: Prisma.JsonNull } },
+          { embedding: { equals: null } },
+        ],
+      },
       include: { genre: { include: { genre: true } } },
     });
 
@@ -148,14 +153,24 @@ export class BooksService implements OnModuleInit {
 
     const queryEmbedding = await this.embeddingService.embed(query);
 
-    // Hybrid: 70% semantic vector + 30% fuzzy word match (handles typos)
-    return booksWithEmbeddings
+    const booksWithoutEmbeddings = books.filter(b => !Array.isArray(b.embedding));
+
+    const semanticResults = booksWithEmbeddings
       .map(b => ({
         book: b,
         score:
           cosineSimilarity(queryEmbedding, b.embedding as number[]) * 0.7 +
           fuzzyTextScore(b, query) * 0.3,
       }))
+      .filter(r => r.score > 0.3)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20);
+
+    const fuzzyFallback = booksWithoutEmbeddings
+      .map(b => ({ book: b, score: fuzzyTextScore(b, query) }))
+      .filter(r => r.score > 0.3);
+
+    return [...semanticResults, ...fuzzyFallback]
       .sort((a, b) => b.score - a.score)
       .slice(0, 20)
       .map(r => r.book);
